@@ -1,0 +1,43 @@
+{
+    "name": "OmniSearch",
+    "version": "0.1",
+    "manifest_version": 3,
+    "action": {
+        "default_popup": "src/popup/popup.html"
+    },
+    "permissions": [
+        "commands",
+        "tabs",
+        "activeTab",
+        "history",
+        "scripting",
+        "storage"
+    ],
+    "background": {
+        "service_worker": "src/background/background.js"
+    },
+    "content_scripts": [
+        {
+            "resources": ["assets/*"],
+            "matches": ["<all_urls>"],
+            "js": ["src/content/content.js"]
+        }
+    ],
+
+    "web_accessible_resources": [
+        {
+            "resources": ["src/content/*.js", "assets/*"],
+            "matches": ["<all_urls>"]
+        }
+    ],
+    "commands": {
+        "OmniSearch": {
+            "suggested_key": {
+                "default": "Ctrl+Shift+F",
+                "mac": "Command+Shift+S",
+                "linux": "Ctrl+Shift+F"
+            },
+            "description": "Open OmniSearch"
+        }
+    }
+}

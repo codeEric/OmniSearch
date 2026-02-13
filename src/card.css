@@ -1,0 +1,590 @@
+.card-outer {
+    height: 100%;
+    width: 50%;
+    min-height: 5em;
+    max-height: 35%;
+    padding: 3em;
+}
+
+.card {
+    --border-color: hsl(var(--bottomHue), 12%, 20%);
+    --radius: 22px;
+
+    --ease: cubic-bezier(0.5, 1, 0.89, 1);
+    visibility: visible;
+    opacity: 1;
+    /* pointer-events: none; */
+    transition-property: visibility, opacity, filter;
+    transition-duration: 0s, 0.25s, 0.25s;
+    transition-delay: 0.5s, 0s, 0s;
+    transition-timing-function: var(--ease);
+    filter: blur(0px);
+
+    font-family: 'Asap', sans-serif;
+    color: hsl(220, 7%, 48%);
+    display: block;
+    position: relative;
+    margin: auto;
+
+    /* position: fixed; */
+    /* top: 140px; */
+    /* left: 2svw; */
+    border-radius: var(--radius);
+    border: 1px solid var(--border-color);
+    padding: 1em;
+    background: linear-gradient(235deg,
+            hsl(var(--topHue) 50% 10% / 0.8),
+            hsl(var(--topHue) 50% 10% / 0) 33%),
+        linear-gradient(45deg,
+            hsl(var(--bottomHue) 50% 10% / 0.8),
+            hsl(var(--bottomHue) 50% 10% / 0) 33%),
+        linear-gradient(hsl(220deg 25% 4.8% / 0.66));
+    backdrop-filter: blur(12px);
+    box-shadow: hsl(var(--bottomHue) 50% 2%) 0px 10px 16px -8px,
+        hsl(var(--bottomHue) 50% 4%) 0px 20px 36px -14px;
+}
+
+.card .shine,
+.card .glow {
+    --hue: var(--topHue);
+}
+
+.card .shine-bottom,
+.card .glow-bottom {
+    --hue: var(--bottomHue);
+    --conic: 135deg;
+}
+
+.card .shine,
+.card .shine::before,
+.card .shine::after {
+    /* shine is the bright white-ish inner pixel-wide lights */
+
+    pointer-events: none;
+
+    border-radius: inherit;
+    border-top-right-radius: inherit;
+    border-bottom-left-radius: inherit;
+    border: 1px solid transparent;
+
+    height: 100%;
+    min-height: 0px;
+    aspect-ratio: 1;
+    display: block;
+    position: absolute;
+    right: calc(1px * -1);
+    top: calc(1px * -1);
+    left: auto;
+
+    z-index: 1;
+
+    --start: 12%;
+    background: conic-gradient(from var(--conic, -45deg) at center in oklch,
+            transparent var(--start, 0%),
+            hsl(var(--hue), var(--sat, 80%), var(--lit, 60%)),
+            transparent var(--end, 50%)) border-box;
+
+    mask: linear-gradient(transparent), linear-gradient(black);
+    mask-repeat: no-repeat;
+    mask-clip: padding-box, border-box;
+    mask-composite: subtract;
+}
+
+.card .shine::before,
+.card .shine::after {
+    content: '';
+    width: auto;
+    inset: -2px;
+    mask: none;
+}
+
+.card .shine::after {
+    z-index: 2;
+    --start: 17%;
+    --end: 33%;
+    background: conic-gradient(from var(--conic, -45deg) at center in oklch,
+            transparent var(--start, 0%),
+            hsl(var(--hue), var(--sat, 80%), var(--lit, 85%)),
+            transparent var(--end, 50%));
+}
+
+.card .shine-bottom {
+    top: auto;
+    bottom: calc(1px * -1);
+    left: calc(1px * -1);
+    right: auto;
+}
+
+.card .glow {
+    /* glow is the sparse colour bleed with noise */
+    pointer-events: none;
+
+    border-top-right-radius: calc(var(--radius) * 2);
+    border-bottom-left-radius: calc(var(--radius) * 2);
+    border: calc(var(--radius) * -0.5) solid transparent;
+    inset: calc(var(--radius) * -1.15);
+
+    width: 100%;
+    height: 100%;
+    min-height: 0px;
+    display: block;
+    position: absolute;
+    left: auto;
+    bottom: auto;
+
+    opacity: 1;
+    filter: blur(13px) saturate(0.85) brightness(0.4);
+    mix-blend-mode: plus-lighter;
+    z-index: 3;
+}
+
+.card .glow.glow-bottom {
+    inset: calc(var(--radius) * -1.2);
+    top: auto;
+    right: auto;
+}
+
+.card .glow::before,
+.card .glow::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border: inherit;
+    border-radius: inherit;
+    background: conic-gradient(from var(--conic, -45deg) at center in oklch,
+            transparent var(--start, 0%),
+            hsl(var(--hue), var(--sat, 95%), var(--lit, 60%)),
+            transparent var(--end, 50%)) border-box;
+    mask: linear-gradient(transparent), linear-gradient(black);
+    mask-repeat: no-repeat;
+    mask-clip: padding-box, border-box;
+    mask-composite: subtract;
+    filter: saturate(2) brightness(1);
+}
+
+.card .glow::after {
+    --lit: 70%;
+    --sat: 100%;
+    --start: 27%;
+    --end: 36%;
+    border-width: calc(var(--radius) * 1.75);
+    border-radius: calc(var(--radius) * 2.75);
+    inset: calc(var(--radius) * -0.25);
+    z-index: 4;
+    opacity: 0.75;
+}
+
+.card .glow-bright {
+    --lit: 80%;
+    --sat: 100%;
+    --start: 13%;
+    --end: 37%;
+
+    border-width: 5px;
+    border-radius: calc(var(--radius) + 2px);
+    inset: -7px;
+    left: auto;
+    filter: blur(2px) brightness(0.66);
+}
+
+.card .glow-bright::after {
+    content: none;
+}
+
+.card .glow-bright.glow-bottom {
+    inset: -7px;
+    right: auto;
+    top: auto;
+}
+
+.searchbar {
+    display: flex;
+    align-items: center;
+    padding: 0.25em 0.375em;
+    border: 1px solid hsl(var(--bottomHue) 13% 18.5% / 0.5);
+    background: linear-gradient(to bottom,
+            hsl(var(--topHue) 20% 20% / 0.1) 50%,
+            hsl(var(--topHue) 50% 50% / 0.8) 180%);
+    background-size: 100% 300%;
+    background-position: 0% 0%;
+    background-repeat: no-repeat;
+    border-radius: calc(var(--radius) * 0.33333);
+    transition: all 0.3s var(--ease);
+    box-shadow: 0 0 0 1px transparent;
+    font-weight: 300;
+    font-family: 'Asap', sans-serif;
+    color: hsl(0 0 100% / 0.5);
+}
+
+.searchbar:focus-within {
+    border-color: hsl(var(--topHue) 20% 70% / 0.5);
+    background-position: 0% 50%;
+    color: hsl(var(--topHue) 20% 80% / 1);
+}
+
+
+
+.searchbar-input {
+    font-family: inherit;
+    padding: 0.675em;
+    outline: 1px solid transparent;
+
+    color: hsl(0 0 100% / 0.5);
+    background: transparent;
+    border: none;
+    font-size: 1em;
+    field-sizing: content;
+    margin-right: 1.2em;
+
+}
+
+.searchbar-input::placeholder {
+    color: hsl(0 0 100% / 0.4);
+}
+
+.search-icon circle {
+    stroke: hsl(var(--topHue) 60% 70% / 1);
+}
+
+.search-icon line {
+    stroke: hsl(var(--topHue) 40% 45% / 1);
+}
+
+.searchbar-input:focus {
+    border-color: hsl(var(--topHue) 20% 70% / 0.5);
+    background-position: 0% 50%;
+    color: hsl(var(--topHue) 20% 80% / 1);
+}
+
+.card-item {
+    --itemHue: var(--topHue);
+    position: relative;
+    margin: 0.25em 0;
+    padding: 0.5em;
+    font-size: 0.95em;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-radius: calc(var(--radius) * 0.33333);
+    border: 1px solid transparent;
+    transition: all 0.3s ease-in, --item-opacity 0.3s ease-in;
+    background: linear-gradient(90deg in oklch,
+            hsl(var(--itemHue) 30% 15% / var(--item-opacity)),
+            hsl(var(--itemHue) 31% 16% / var(--item-opacity)) 25% 33%,
+            hsl(var(--itemHue) 6% 9% / 0) 90%) border-box;
+}
+
+.card-item.card-item-second-half {
+    --itemHue: var(--bottomHue);
+}
+
+.card-item::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    border: inherit;
+    background: linear-gradient(90deg in oklch,
+            hsl(var(--itemHue) 15% 16% / var(--item-opacity)),
+            hsl(var(--itemHue) 40% 24% / var(--item-opacity)) 20% 32%,
+            hsl(var(--itemHue) 2% 12% / 0) 90%) border-box;
+    mask: linear-gradient(transparent),
+        linear-gradient(to right, black, transparent);
+    mask-repeat: no-repeat;
+    mask-clip: padding-box, border-box;
+    mask-composite: subtract;
+}
+
+.card-item:hover,
+.card-item.selected,
+.card-item:hover::after,
+.card-item.selected::after,
+.card-item:focus,
+.card-item:focus::after {
+    --item-opacity: 0.8;
+    transition: all 0.1s ease-out, --item-opacity 0.1s ease-out;
+    color: white;
+    outline: none;
+}
+
+
+.card-item.selected,
+.card-item.selected::after {
+    animation: flash 0.75s ease-out 1 forwards;
+}
+
+.searchbar-param {
+    display: flex;
+    align-items: center;
+    gap: 0.75em;
+}
+
+.searchbar-param-icon {
+    height: 1.35em;
+}
+
+.searchbar-param-input {
+    padding: 0.25em 0.15em;
+    border: 1px solid hsl(var(--bottomHue) 13% 18.5% / 0.5);
+    background: linear-gradient(to bottom,
+            hsl(var(--topHue) 22% 22% / 0.15) 52%,
+            hsl(var(--topHue) 52% 52% / 0.85) 182%);
+    background-size: 100% 300%;
+    background-position: 0% 0%;
+    background-repeat: no-repeat;
+    border-radius: calc(var(--radius) * 0.33333);
+    transition: all 0.3s var(--ease);
+    box-shadow: 0 0 0 1px transparent;
+    font-weight: 300;
+    font-family: 'Asap', sans-serif;
+    color: hsl(0 0 100% / 0.5);
+
+    padding-left: 0.35em;
+    outline: 1px solid transparent;
+
+    color: hsl(0 0 100% / 0.5);
+    /* background: transparent; */
+    /* border: none; */
+    font-size: 0.9em;
+
+    width: fit-content;
+    field-sizing: content;
+    inline-size: auto;
+    max-inline-size: 15ch;
+    min-inline-size: 8ch;
+
+}
+
+.searchbar-param-input::placeholder {
+    color: hsl(0 0 100% / 0.4);
+}
+
+.searchbar-param-input:focus {
+    border-color: hsl(var(--topHue) 22% 72% / 0.45);
+    background-position: 0% 50%;
+    color: hsl(var(--topHue) 22% 82% / 1);
+}
+
+@media screen and (min-width: 1471px) {
+    .card-outer {
+        width: 33%;
+    }
+}
+
+@media screen and (max-width: 1200px) {
+    .card-outer {
+        width: 60%;
+    }
+}
+
+@media screen and (max-width: 1000px) {
+    .card-outer {
+        width: 70%;
+    }
+}
+
+@media screen and (max-width: 850px) {
+    .card-outer {
+        width: 80%;
+    }
+}
+
+@media screen and (max-width: 735px) {
+    .card-outer {
+        width: 100%;
+    }
+}
+
+@property --item-opacity {
+    syntax: '<number>';
+    inherits: false;
+    initial-value: 0;
+}
+
+.card-item-text {
+    margin-inline-start: 0.5em;
+    font-size: 1em;
+    width: 100%;
+    display: inline-block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.card-item-favicon {
+    height: 1.15em;
+}
+
+.card-item-content {
+    display: flex;
+    align-items: center;
+    max-width: 83.3333%;
+    width: 100%;
+}
+
+.full-width {
+    width: 100%;
+}
+
+.card-item-type-card {
+    font-size: 0.875em;
+    border-radius: 0.5em;
+    padding: 0.125em 0.5em;
+    display: flex;
+    align-self: center;
+    backdrop-filter: blur(10px);
+    color: hsl(0 0 100% / 0.45);
+    border: 1px solid transparent;
+    background: linear-gradient(90deg in oklch,
+            hsl(var(--itemHue) 30% 15% / var(--item-opacity)),
+            hsl(var(--itemHue) 31% 16% / var(--item-opacity)) 25% 33%,
+            hsl(var(--itemHue) 6% 9% / 0) 90%) border-box;
+}
+
+.card-item:hover>.card-item-type-card,
+.card-item.selected>.card-item-type-card,
+.card-item:focus>.card-item-type-card {
+    color: hsl(0 0 100% / 0.65);
+    border: 1px solid hsl(var(--itemHue) 42% 38% / 0.65);
+}
+
+.card-item:hover>.card-item-type-card::after,
+.card-item.selected>.card-item-type-card::after,
+.card-item:focus>.card-item-type-card::after {
+    --item-opacity: 0.5;
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    border: inherit;
+    background: linear-gradient(90deg in oklch,
+            hsl(var(--itemHue) 15% 16% / var(--item-opacity)),
+            hsl(var(--itemHue) 40% 24% / var(--item-opacity)) 10% 20%,
+            hsl(var(--itemHue) 2% 12% / 0) 90%) border-box;
+    mask: linear-gradient(transparent),
+        linear-gradient(to right, black, transparent);
+    mask-repeat: no-repeat;
+    mask-clip: padding-box, border-box;
+    mask-composite: subtract;
+}
+
+.statusbar {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 1em;
+}
+
+.statusbar-content {
+    display: flex;
+    gap: 3em;
+}
+
+.statusbar-card {
+    height: 1.5em;
+    width: 1.3em;
+    font-size: 0.875em;
+    border-radius: 0.5em;
+    padding: 0.125em 0.5em;
+    display: flex;
+    align-self: center;
+    justify-content: center;
+    backdrop-filter: blur(10px);
+    color: hsl(0 0 100% / 0.65);
+    border: 1px solid hsl(var(--bottomHue) 42% 38% / 0.65);
+    background: linear-gradient(90deg in oklch,
+            hsl(var(--bottomHue) 30% 15% / var(--item-opacity)),
+            hsl(var(--bottomHue) 31% 16% / var(--item-opacity)) 25% 33%,
+            hsl(var(--bottomHue) 6% 9% / 0) 90%) border-box;
+}
+
+.statusbar-card>svg {
+    stroke: hsl(var(--bottomHue) 80% 75% / 1);
+    align-self: center;
+}
+
+.statusbar-card>span {
+    color: hsl(var(--bottomHue) 80% 75% / 1);
+}
+
+.statusbar-keybind {
+    display: flex;
+    align-items: center;
+    font-size: 0.85em;
+    gap: 0.375em;
+    color: hsl(0 0 100% / 0.75);
+
+}
+
+.statusbar-card-text {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.93em;
+}
+
+.statusbar-card-text.command-key {
+    font-size: 1.15em;
+}
+
+.card-no-result-text {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.62em 0;
+}
+
+.separator {
+    width: 100%;
+    height: 0.1em;
+    background-color: rgba(175, 175, 175, 0.25);
+    border-radius: 0.75em;
+    border: 0;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+}
+
+.searchbar-param-input-container {
+    position: relative;
+}
+
+.searchbar-param-default {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 0.75em;
+    pointer-events: none;
+    background: hsl(var(--topHue) 2% 10%);
+}
+
+.calculator-label {
+    font-size: 0.975em;
+    color: hsl(220, 7%, 48%);
+    margin-top: 0.25em;
+    margin-inline-start: 0.5em;
+}
+
+.calculator-container {
+    height: 6em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.5em;
+}
+
+
+.calculator-container.selected {
+    background: linear-gradient(to bottom,
+            hsl(var(--topHue) 42% 42% / 0.28) 0%,
+            hsl(var(--bottomHue) 42% 42% / 0.28) 100%);
+}
+
+.calculator-value {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50%;
+    font-size: 1.875em;
+    line-height: 2.25em;
+    color: hsl(220, 7%, 82%);
+}
