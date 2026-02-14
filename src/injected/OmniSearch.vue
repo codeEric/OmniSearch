@@ -11,7 +11,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref, toRef } from "vue";
+import { computed, reactive, ref, toRef, watch } from "vue";
 import SearchBar from "./SearchBar/SearchBar.vue";
 import SearchResults from "./Results/SearchResults.vue";
 import SearchStatusBar from "./StatusBar/SearchStatusBar.vue";
@@ -39,7 +39,7 @@ const selectKeyModText = computed(() => {
 
 const { isMathExpression, calculatedResult } = useMathExpressions(searchQuery);
 const { mappings } = useChromeSyncStorage();
-const { filteredResults, selectedIndex } = useOmniSearch(toRef(props.tabs), mappings, searchQuery);
+const { filteredResults, selectedIndex } = useOmniSearch(computed(() => props.tabs), mappings, searchQuery);
 const { handler } = useKeyboardHandler({
     focusedInput,
     searchQuery,
@@ -49,7 +49,6 @@ const { handler } = useKeyboardHandler({
     calculatedResult,
     parametersQuery
 });
-
 
 const updateParametersQuery = (key: string, value: string) => {
     parametersQuery[key] = value;

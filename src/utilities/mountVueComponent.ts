@@ -3,7 +3,7 @@ import type { ChromeTab } from "./types";
 
 export function mountVueComponent(
     container: HTMLElement,
-    component: Component
+    component: Component,
 ) {
     const isVisible = ref(false);
     const tabs = ref<ChromeTab[]>([]);
@@ -33,7 +33,6 @@ export function mountVueComponent(
     return {
         toggleComponent: (value: boolean, initialTabs?: any) => {
             isVisible.value = value;
-            console.log("qweqwe33");
             if (initialTabs) {
                 tabs.value = initialTabs;
             }
@@ -42,14 +41,13 @@ export function mountVueComponent(
                 setTimeout(() => {
                     const input =
                         container.parentElement?.shadowRoot?.querySelector(
-                            "input"
+                            "input",
                         );
                     input?.focus();
                 }, 0);
             }
         },
         updateTabs: (updatedTabs?: any) => {
-            console.log(updatedTabs);
             tabs.value = updatedTabs;
         },
         destroy: () => app.unmount(),

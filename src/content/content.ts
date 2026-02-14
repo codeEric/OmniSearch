@@ -22,7 +22,6 @@ async function setup() {
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.command === "SHOW_OMNI_SEARCH") {
-        console.log("aaaa");
         if (!toggleComponent) {
             setup().then(() => {
                 shadowHostElement!.style.display = "block";
@@ -34,7 +33,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         }
     }
     if (message.command == "TABS_UPDATED") {
-        console.log("Hello");
         updateTabs?.(message.data);
     }
     return true;

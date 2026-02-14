@@ -19,7 +19,7 @@ import "../main.css";
 import { useChromeSyncStorage } from '../composables/useChromeStorage';
 import OmniSearch from './OmniSearch.vue';
 import type { ChromeTab } from '../utilities/types';
-import { onMounted } from 'vue';
+import { onMounted, watch } from 'vue';
 import { useTheme } from "@/composables";
 
 const { userPreferences, init } = useChromeSyncStorage();

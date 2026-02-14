@@ -16,7 +16,7 @@ const openOmniSearch = async () => {
             title: tab.title,
             favIconUrl: tab.favIconUrl,
             active: tab.active,
-        })
+        }),
     ) satisfies ChromeTab[];
     const [tab] = tabs.filter((tab) => tab.active);
     if (tab && tab.id) {
@@ -35,7 +35,7 @@ const openOmniSearch = async () => {
 function updateTabsCache() {
     chrome.tabs.query({}, (tabs) => {
         tabsCache = tabs;
-        // broadcastTabs();
+        broadcastTabs();
     });
 }
 
@@ -71,10 +71,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 });
 
 chrome.commands.onCommand.addListener((command: string) => {
-    console.log("qweqweqweqwe");
     switch (command) {
         case "OmniSearch":
-            console.log("bbbb");
             openOmniSearch();
             break;
     }
@@ -86,6 +84,6 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     }
 });
 
-// chrome.tabs.onCreated.addListener(updateTabsCache);
-// chrome.tabs.onRemoved.addListener(updateTabsCache);
-// chrome.tabs.onUpdated.addListener(updateTabsCache);
+chrome.tabs.onCreated.addListener(updateTabsCache);
+chrome.tabs.onRemoved.addListener(updateTabsCache);
+chrome.tabs.onUpdated.addListener(updateTabsCache);
