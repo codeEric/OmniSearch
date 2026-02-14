@@ -102,9 +102,7 @@ export const useKeyboardHandler = (deps: HandlerDeps) => {
                         },
                         "*",
                     );
-                }
-
-                if (selectedResult.type === ResultType.Command) {
+                } else if (selectedResult.type === ResultType.Command) {
                     window.open(
                         buildCommandUrl(
                             selectedResult as CommandResult,
@@ -112,16 +110,18 @@ export const useKeyboardHandler = (deps: HandlerDeps) => {
                         ),
                     );
                     clearReactive(parametersQuery);
-                }
-
-                if (selectedResult.type === ResultType.Search) {
+                } else if (selectedResult.type === ResultType.Search) {
                     window.open(selectedResult.url);
-                }
-                if (isChromeTabGroup(selectedResult)) {
+                } else if (isChromeTabGroup(selectedResult)) {
                     chrome.runtime.sendMessage({
                         command: "TOGGLE_TAB_GROUP",
                         tabGroupId: selectedResult.id,
                     });
+                } else if (
+                    selectedResult.type === ResultType.PredefinedCommand &&
+                    selectedResult?.url
+                ) {
+                    window.open(selectedResult.url);
                 }
 
                 break;
