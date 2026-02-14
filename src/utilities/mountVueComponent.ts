@@ -1,5 +1,6 @@
 import { createApp, ref, h, type Component } from "vue";
 import type { ChromeTab } from "./types";
+import { getPageBackgroundMode } from "./helpers";
 
 export function mountVueComponent(
     container: HTMLElement,
@@ -7,6 +8,7 @@ export function mountVueComponent(
 ) {
     const isVisible = ref(false);
     const tabs = ref<ChromeTab[]>([]);
+    let useMode = ref<"light" | "dark">("dark");
 
     const app = createApp({
         setup() {
@@ -22,6 +24,7 @@ export function mountVueComponent(
             return isVisible.value
                 ? h(component, {
                       tabs: tabs.value,
+                      useMode: useMode.value,
                       onClose: () => (isVisible.value = false),
                   })
                 : null;
@@ -33,6 +36,7 @@ export function mountVueComponent(
     return {
         toggleComponent: (value: boolean, initialTabs?: any) => {
             isVisible.value = value;
+            useMode.value = getPageBackgroundMode();
             if (initialTabs) {
                 tabs.value = initialTabs;
             }

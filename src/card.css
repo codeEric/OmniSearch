@@ -39,9 +39,20 @@
             hsl(var(--bottomHue) 50% 10% / 0.8),
             hsl(var(--bottomHue) 50% 10% / 0) 33%),
         linear-gradient(hsl(220deg 25% 4.8% / 0.66));
-    backdrop-filter: blur(12px);
+    backdrop-filter: blur(4px);
     box-shadow: hsl(var(--bottomHue) 50% 2%) 0px 10px 16px -8px,
         hsl(var(--bottomHue) 50% 4%) 0px 20px 36px -14px;
+}
+
+.card.light {
+    background:
+        linear-gradient(235deg,
+            hsl(var(--topHue) 40% 20% / 0.3),
+            hsl(var(--topHue) 40% 20% / 0) 35%),
+        linear-gradient(45deg,
+            hsl(var(--bottomHue) 40% 20% / 0.3),
+            hsl(var(--bottomHue) 40% 20% / 0) 35%),
+        linear-gradient(hsl(200 20% 90% / 0.7));
 }
 
 .card .shine,
@@ -134,8 +145,13 @@
 
     opacity: 1;
     filter: blur(13px) saturate(0.85) brightness(0.4);
-    mix-blend-mode: plus-lighter;
+    mix-blend-mode: screen;
     z-index: 3;
+}
+
+.card .glow.light {
+    filter: blur(15px) saturate(0.8) brightness(0.85);
+    opacity: 0.75;
 }
 
 .card .glow.glow-bottom {
@@ -222,8 +238,6 @@
     color: hsl(var(--topHue) 20% 80% / 1);
 }
 
-
-
 .searchbar-input {
     font-family: inherit;
     padding: 0.675em;
@@ -238,8 +252,16 @@
 
 }
 
+.card.light .searchbar-input {
+    color: hsl(0 0 20% / 0.7);
+}
+
 .searchbar-input::placeholder {
     color: hsl(0 0 100% / 0.4);
+}
+
+.card.light .searchbar-input::placeholder {
+    color: hsl(0 0 20% / 0.7);
 }
 
 .search-icon circle {
@@ -274,6 +296,15 @@
             hsl(var(--itemHue) 6% 9% / 0) 90%) border-box;
 }
 
+.card.light .card-item {
+    background: linear-gradient(90deg in oklch,
+            hsl(var(--itemHue) 30% 65% / var(--item-opacity)),
+            hsl(var(--itemHue) 31% 56% / var(--item-opacity)) 25% 53%,
+            hsl(var(--itemHue) 6% 59% / 0) 90%) border-box;
+
+    transition: none;
+}
+
 .card-item.card-item-second-half {
     --itemHue: var(--bottomHue);
 }
@@ -295,6 +326,13 @@
     mask-composite: subtract;
 }
 
+.card.light .card-item::after {
+    background: linear-gradient(90deg in oklch,
+            hsl(var(--itemHue) 15% 46% / var(--item-opacity)),
+            hsl(var(--itemHue) 40% 54% / var(--item-opacity)) 20% 32%,
+            hsl(var(--itemHue) 2% 42% / 0) 90%) border-box;
+}
+
 .card-item:hover,
 .card-item.selected,
 .card-item:hover::after,
@@ -305,12 +343,6 @@
     transition: all 0.1s ease-out, --item-opacity 0.1s ease-out;
     color: white;
     outline: none;
-}
-
-
-.card-item.selected,
-.card-item.selected::after {
-    animation: flash 0.75s ease-out 1 forwards;
 }
 
 .searchbar-param {
@@ -355,14 +387,28 @@
 
 }
 
+.card.light .searchbar-param-input {
+    color: hsl(0 0 20% / 0.7);
+}
+
 .searchbar-param-input::placeholder {
     color: hsl(0 0 100% / 0.4);
+}
+
+.card.light .searchbar-param-input::placeholder {
+    color: hsl(0 0 20% / 0.7);
 }
 
 .searchbar-param-input:focus {
     border-color: hsl(var(--topHue) 22% 72% / 0.45);
     background-position: 0% 50%;
     color: hsl(var(--topHue) 22% 82% / 1);
+}
+
+.card.light .searchbar-param-input:focus {
+    border-color: hsl(var(--topHue) 52% 72% / 1);
+    background-position: 0% 50%;
+    color: hsl(var(--topHue) 22% 22% / 1);
 }
 
 @media screen and (min-width: 1471px) {
@@ -441,10 +487,24 @@
             hsl(var(--itemHue) 6% 9% / 0) 90%) border-box;
 }
 
+.card.light .card-item-type-card {
+    background: linear-gradient(90deg in oklch,
+            hsl(var(--itemHue) 30% 65% / var(--item-opacity)),
+            hsl(var(--itemHue) 31% 56% / var(--item-opacity)) 25% 53%,
+            hsl(var(--itemHue) 6% 59% / 0) 90%) border-box;
+}
+
 .card-item:hover>.card-item-type-card,
 .card-item.selected>.card-item-type-card,
 .card-item:focus>.card-item-type-card {
     color: hsl(0 0 100% / 0.65);
+    border: 1px solid hsl(var(--itemHue) 42% 38% / 0.65);
+}
+
+.card.light .card-item:hover>.card-item-type-card,
+.card.light .card-item.selected>.card-item-type-card,
+.card.light .card-item:focus>.card-item-type-card {
+    color: hsl(0 0 100% / 0.85);
     border: 1px solid hsl(var(--itemHue) 42% 38% / 0.65);
 }
 
@@ -502,8 +562,16 @@
     align-self: center;
 }
 
+.card.light .statusbar-card>svg {
+    stroke: hsl(var(--bottomHue) 80% 30% / 1);
+}
+
 .statusbar-card>span {
     color: hsl(var(--bottomHue) 80% 75% / 1);
+}
+
+.card.light .statusbar-card>span {
+    color: hsl(var(--bottomHue) 80% 30% / 1);
 }
 
 .statusbar-keybind {
@@ -513,6 +581,10 @@
     gap: 0.375em;
     color: hsl(0 0 100% / 0.75);
 
+}
+
+.card.light .statusbar-keybind {
+    color: hsl(0 0 20% / 0.75);
 }
 
 .statusbar-card-text {
