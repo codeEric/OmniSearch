@@ -32,14 +32,14 @@ const openOmniSearch = async () => {
     }
 };
 
-function updateTabsCache() {
-    chrome.tabs.query({}, (tabs) => {
+const updateTabsCache = () => {
+    chrome.tabs.query({ currentWindow: true }, (tabs) => {
         tabsCache = tabs;
         broadcastTabs();
     });
-}
+};
 
-async function broadcastTabs() {
+const broadcastTabs = async () => {
     const tabs = await chrome.tabs.query({ currentWindow: true });
     tabs.forEach((tab) => {
         if (tab?.id) {
@@ -51,7 +51,7 @@ async function broadcastTabs() {
                 .catch(() => {});
         }
     });
-}
+};
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.command === "HIDE_OMNI_SEARCH") {
@@ -63,9 +63,34 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             chrome.tabs.update(message.tabId, { active: true });
         }
     }
-    if (message.command === "update_user_preferences") {
+    if (message.command === "UPDATE_USER_PREFERENCES") {
         chrome.storage.sync.set({
             ss_userPreferences: message.payload,
+        });
+    }
+    if (message.command === "GET_TAB_GROUPS") {
+        chrome.tabGroups.query({}, (groups) => {
+            sendResponse(groups);
+        });
+
+        return true;
+    }
+
+    if (message.command === "GET_BOOKMARKS") {
+        chrome.bookmarks.getTree((bookmarkTreeNodes) => {
+            sendResponse(bookmarkTreeNodes);
+        });
+
+        return true;
+    }
+
+    if (message.command === "TOGGLE_TAB_GROUP") {
+        const groupId = Number(message.tabGroupId);
+
+        chrome.tabGroups.get(groupId).then((group) => {
+            return chrome.tabGroups.update(groupId, {
+                collapsed: !group.collapsed,
+            });
         });
     }
 });

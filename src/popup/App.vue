@@ -38,7 +38,7 @@ watch(
     userPreferences,
     (val) => {
         chrome.runtime.sendMessage({
-            command: "update_user_preferences",
+            command: "UPDATE_USER_PREFERENCES",
             payload: val,
         });
     },

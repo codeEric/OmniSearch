@@ -11,7 +11,9 @@
         "activeTab",
         "history",
         "scripting",
-        "storage"
+        "storage",
+        "bookmarks",
+        "tabGroups"
     ],
     "background": {
         "service_worker": "src/background/background.js"

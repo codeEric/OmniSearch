@@ -1,4 +1,5 @@
 import { clearReactive } from "@/utilities/helpers";
+import { isChromeTabGroup } from "@/utilities/typeGuards";
 import { ResultType, type CommandResult } from "@/utilities/types";
 import { buildCommandUrl } from "@/utilities/urlHelpers";
 import { onMounted, onUnmounted, type Ref } from "vue";
@@ -26,6 +27,7 @@ export const useKeyboardHandler = (deps: HandlerDeps) => {
 
     const handler = (e: KeyboardEvent) => {
         e.stopImmediatePropagation();
+        const selectedResult = filteredResults.value[selectedIndex.value];
         switch (e.key) {
             case "Backspace":
                 if (
@@ -45,7 +47,7 @@ export const useKeyboardHandler = (deps: HandlerDeps) => {
                             type: "FROM_TAB_FILTER",
                             command: "HIDE_OMNI_SEARCH",
                         },
-                        "*"
+                        "*",
                     );
                 } else {
                     searchQuery.value = "";
@@ -81,59 +83,51 @@ export const useKeyboardHandler = (deps: HandlerDeps) => {
             case "Enter":
                 if (isMathExpression.value && calculatedResult.value) {
                     navigator.clipboard.writeText(
-                        calculatedResult.value as string
+                        calculatedResult.value as string,
                     );
                     window.postMessage(
                         {
                             type: "FROM_TAB_FILTER",
                             command: "HIDE_OMNI_SEARCH",
                         },
-                        "*"
+                        "*",
                     );
                 }
-                if (
-                    filteredResults.value[selectedIndex.value].type ===
-                    ResultType.Tab
-                ) {
+                if (selectedResult.type === ResultType.Tab) {
                     window.postMessage(
                         {
                             type: "FROM_TAB_FILTER",
                             command: "OPEN_SELECTED_TAB",
-                            tabId: filteredResults.value[selectedIndex.value]
-                                .id,
+                            tabId: selectedResult.id,
                         },
-                        "*"
+                        "*",
                     );
                 }
 
-                if (
-                    filteredResults.value[selectedIndex.value].type ===
-                    ResultType.Command
-                ) {
+                if (selectedResult.type === ResultType.Command) {
                     window.open(
                         buildCommandUrl(
-                            filteredResults.value[
-                                selectedIndex.value
-                            ] as CommandResult,
-                            parametersQuery
-                        )
+                            selectedResult as CommandResult,
+                            parametersQuery,
+                        ),
                     );
                     clearReactive(parametersQuery);
                 }
 
-                if (
-                    filteredResults.value[selectedIndex.value].type ===
-                    ResultType.Search
-                ) {
-                    window.open(filteredResults.value[selectedIndex.value].url);
+                if (selectedResult.type === ResultType.Search) {
+                    window.open(selectedResult.url);
                 }
+                if (isChromeTabGroup(selectedResult)) {
+                    chrome.runtime.sendMessage({
+                        command: "TOGGLE_TAB_GROUP",
+                        tabGroupId: selectedResult.id,
+                    });
+                }
+
                 break;
             case "Tab":
                 e.preventDefault();
-                if (
-                    filteredResults.value[selectedIndex.value].type ===
-                    ResultType.Command
-                ) {
+                if (selectedResult.type === ResultType.Command) {
                     focusedInput.value =
                         (focusedInput.value + 1) %
                         ((
@@ -142,8 +136,12 @@ export const useKeyboardHandler = (deps: HandlerDeps) => {
                             ] as CommandResult
                         ).parameters.length +
                             1);
-                    break;
+                } else if (
+                    selectedResult.type === ResultType.PredefinedCommand
+                ) {
+                    focusedInput.value = (focusedInput.value + 1) % 2;
                 }
+                break;
         }
     };
 

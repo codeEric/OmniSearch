@@ -21,3 +21,4 @@ export { default as PlusIcon } from "./PlusIcon.vue";
 export { default as CloseIcon } from "./CloseIcon.vue";
 export { default as ChevronDown } from "./ChevronDown.vue";
 export { default as ChevronUp } from "./ChevronUp.vue";
+export { default as FolderIcon } from "./FolderIcon.vue";

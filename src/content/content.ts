@@ -1,6 +1,7 @@
 import { initializeShadowHost } from "../utilities";
 import { mountVueComponent } from "../utilities";
 import OmniSearchCard from "../injected/OmniSearchCard.vue";
+import type { TabFilterCommand, TabFilterMessage } from "@/utilities/types";
 
 let toggleComponent: ((visible: boolean, data: any) => void) | null = null;
 let updateTabs: ((updatedTabs?: any) => void) | null = null;
@@ -39,23 +40,32 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 });
 
 window.addEventListener("message", (event) => {
-    if (event.source !== window || event.data.type !== "FROM_TAB_FILTER")
-        return;
+    if (event.source !== window) return;
+    if (!event.data || event.data.type !== "FROM_TAB_FILTER") return;
     if (!toggleComponent || !shadowHostElement) return;
 
-    if (event.data.command === "HIDE_OMNI_SEARCH") {
-        shadowHostElement.style.display = "none";
-        toggleComponent(false, null);
-        chrome.runtime.sendMessage({ command: "HIDE_OMNI_SEARCH" });
-    }
+    const { command, tabId } = event.data as TabFilterMessage;
 
-    if (event.data.command === "OPEN_SELECTED_TAB") {
+    const closeOmniSearch = () => {
+        if (!toggleComponent || !shadowHostElement) return;
         shadowHostElement.style.display = "none";
         toggleComponent(false, null);
-        chrome.runtime.sendMessage({
-            command: "OPEN_SELECTED_TAB",
-            tabId: event.data.tabId,
-        });
+    };
+
+    const handlers: Record<TabFilterCommand, () => void> = {
+        HIDE_OMNI_SEARCH: () => {
+            closeOmniSearch();
+            chrome.runtime.sendMessage({ command });
+        },
+
+        OPEN_SELECTED_TAB: () => {
+            closeOmniSearch();
+            chrome.runtime.sendMessage({ command, tabId });
+        },
+    };
+
+    if (handlers[command]) {
+        handlers[command]();
     }
 });
 

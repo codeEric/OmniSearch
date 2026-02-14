@@ -44,6 +44,7 @@ export enum ResultType {
     Tab = "Tab",
     Search = "Search",
     Command = "Command",
+    PredefinedCommand = "PredefinedCommand",
 }
 
 export type TabResult = Omit<BaseResult, "type"> & {
@@ -59,7 +60,13 @@ export type CommandResult = Omit<BaseResult, "type"> & {
     parameters: ResultParameter[];
 };
 
-export type Result = TabResult | SearchResult | CommandResult;
+export type PredefinedCommandResult = ChromeBookmark | ChromeTabGroup;
+
+export type Result =
+    | TabResult
+    | SearchResult
+    | CommandResult
+    | PredefinedCommandResult;
 
 export type UserPreferences = {
     enabled: boolean;
@@ -81,10 +88,44 @@ export type Mapping = {
     tab: CommandResult;
 };
 
+export type SpecialMapping = {
+    keywords: string[];
+    action: () => Promise<
+        chrome.bookmarks.BookmarkTreeNode[] | chrome.tabGroups.TabGroup[] | []
+    >;
+    filterQuery?: string;
+};
+
 export type ChromeTab = {
     id?: number;
     url?: string;
     title?: string;
     favIconUrl?: string;
     active?: boolean;
+};
+
+export type ChromeBookmark = {
+    id: string;
+    title: string;
+    url: string;
+    icon: string;
+    type: ResultType.PredefinedCommand;
+    filterQuery?: string;
+};
+
+export type ChromeTabGroup = {
+    id: string;
+    title: string;
+    color: string;
+    type: ResultType.PredefinedCommand;
+    url: null;
+    filterQuery?: string;
+};
+
+export type TabFilterCommand = "HIDE_OMNI_SEARCH" | "OPEN_SELECTED_TAB";
+
+export type TabFilterMessage = {
+    type: "FROM_TAB_FILTER";
+    command: TabFilterCommand;
+    tabId?: number;
 };
