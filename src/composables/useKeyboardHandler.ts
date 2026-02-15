@@ -1,17 +1,24 @@
 import { clearReactive } from "@/utilities/helpers";
 import { isChromeTabGroup } from "@/utilities/typeGuards";
-import { ResultType, type CommandResult } from "@/utilities/types";
+import {
+    PredefinedCommandType,
+    ResultType,
+    ViewType,
+    type CommandResult,
+    type Result,
+} from "@/utilities/types";
 import { buildCommandUrl } from "@/utilities/urlHelpers";
-import { onMounted, onUnmounted, type Ref } from "vue";
+import { onMounted, onUnmounted, type ComputedRef, type Ref } from "vue";
 
 interface HandlerDeps {
     focusedInput: Ref<number>;
     searchQuery: Ref<string>;
     selectedIndex: Ref<number>;
-    filteredResults: Ref<any[]>;
+    filteredResults: Ref<Result[]>;
     isMathExpression: Ref<boolean>;
-    calculatedResult: Ref<unknown>;
-    parametersQuery: any; // Reactive object
+    calculatedResult: ComputedRef<number | string | null>;
+    parametersQuery: Record<string, string>;
+    currentView: Ref<ViewType>;
 }
 
 export const useKeyboardHandler = (deps: HandlerDeps) => {
@@ -23,6 +30,7 @@ export const useKeyboardHandler = (deps: HandlerDeps) => {
         isMathExpression,
         calculatedResult,
         parametersQuery,
+        currentView,
     } = deps;
 
     const handler = (e: KeyboardEvent) => {
@@ -41,6 +49,10 @@ export const useKeyboardHandler = (deps: HandlerDeps) => {
                 }
                 break;
             case "Escape":
+                if (currentView.value !== ViewType.Default) {
+                    currentView.value = ViewType.Default;
+                    return;
+                }
                 if (!searchQuery.value) {
                     window.postMessage(
                         {
@@ -83,7 +95,7 @@ export const useKeyboardHandler = (deps: HandlerDeps) => {
             case "Enter":
                 if (isMathExpression.value && calculatedResult.value) {
                     navigator.clipboard.writeText(
-                        calculatedResult.value as string,
+                        calculatedResult.value as unknown as string,
                     );
                     window.postMessage(
                         {
@@ -93,35 +105,50 @@ export const useKeyboardHandler = (deps: HandlerDeps) => {
                         "*",
                     );
                 }
-                if (selectedResult.type === ResultType.Tab) {
-                    window.postMessage(
-                        {
-                            type: "FROM_TAB_FILTER",
-                            command: "OPEN_SELECTED_TAB",
-                            tabId: selectedResult.id,
-                        },
-                        "*",
-                    );
-                } else if (selectedResult.type === ResultType.Command) {
-                    window.open(
-                        buildCommandUrl(
-                            selectedResult as CommandResult,
-                            parametersQuery,
-                        ),
-                    );
-                    clearReactive(parametersQuery);
-                } else if (selectedResult.type === ResultType.Search) {
-                    window.open(selectedResult.url);
-                } else if (isChromeTabGroup(selectedResult)) {
-                    chrome.runtime.sendMessage({
-                        command: "TOGGLE_TAB_GROUP",
-                        tabGroupId: selectedResult.id,
-                    });
-                } else if (
-                    selectedResult.type === ResultType.PredefinedCommand &&
-                    selectedResult?.url
-                ) {
-                    window.open(selectedResult.url);
+
+                switch (selectedResult.type) {
+                    case ResultType.Tab:
+                        window.postMessage(
+                            {
+                                type: "FROM_TAB_FILTER",
+                                command: "OPEN_SELECTED_TAB",
+                                tabId: selectedResult.id,
+                            },
+                            "*",
+                        );
+                        break;
+                    case ResultType.Command:
+                        window.open(
+                            buildCommandUrl(
+                                selectedResult as CommandResult,
+                                parametersQuery,
+                            ),
+                        );
+                        clearReactive(parametersQuery);
+                        break;
+                    case ResultType.Search:
+                        window.open(selectedResult.url);
+                        break;
+                    case ResultType.PredefinedCommand:
+                        if (
+                            selectedResult.predefinedCommandType ===
+                            PredefinedCommandType.TabGroups
+                        ) {
+                            chrome.runtime.sendMessage({
+                                command: "TOGGLE_TAB_GROUP",
+                                tabGroupId: selectedResult.id,
+                            });
+                        } else if (
+                            selectedResult.predefinedCommandType ===
+                            PredefinedCommandType.Mappings
+                        ) {
+                            currentView.value = ViewType.MappingEdit;
+                        } else {
+                            if (selectedResult.url) {
+                                window.open(selectedResult.url);
+                            }
+                        }
+                        break;
                 }
 
                 break;

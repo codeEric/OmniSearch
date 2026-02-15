@@ -35,6 +35,18 @@ export enum ColorScheme {
     Sunset = "Sunset",
 }
 
+export enum PredefinedCommandType {
+    TabGroups = "tabgroups",
+    Bookmarks = "bookmarks",
+    Mappings = "mappings",
+}
+
+export enum ViewType {
+    Default = "Default",
+    MappingCreation = "MappingCreation",
+    MappingEdit = "MappingEdit",
+}
+
 export type ColorSchemeHues = {
     topHue: number;
     bottomHue: number;
@@ -60,7 +72,15 @@ export type CommandResult = Omit<BaseResult, "type"> & {
     parameters: ResultParameter[];
 };
 
-export type PredefinedCommandResult = ChromeBookmark | ChromeTabGroup;
+export type PredefinedCommandResult = (
+    | ChromeBookmark
+    | ChromeTabGroup
+    | CommandResult
+) & {
+    type: ResultType.PredefinedCommand;
+    cardName?: string;
+    predefinedCommandType: PredefinedCommandType;
+};
 
 export type Result =
     | TabResult
@@ -88,11 +108,20 @@ export type Mapping = {
     tab: CommandResult;
 };
 
+export type PredefinedCommand =
+    | {
+          type: PredefinedCommandType.TabGroups;
+          data: chrome.tabGroups.TabGroup[];
+      }
+    | {
+          type: PredefinedCommandType.Bookmarks;
+          data: chrome.bookmarks.BookmarkTreeNode[];
+      }
+    | { type: PredefinedCommandType.Mappings; data: Mapping[] };
+
 export type SpecialMapping = {
     keywords: string[];
-    action: () => Promise<
-        chrome.bookmarks.BookmarkTreeNode[] | chrome.tabGroups.TabGroup[] | []
-    >;
+    action: () => Promise<PredefinedCommand>;
     filterQuery?: string;
 };
 
@@ -109,7 +138,6 @@ export type ChromeBookmark = {
     title: string;
     url: string;
     icon: string;
-    type: ResultType.PredefinedCommand;
     filterQuery?: string;
 };
 
@@ -117,7 +145,6 @@ export type ChromeTabGroup = {
     id: string;
     title: string;
     color: string;
-    type: ResultType.PredefinedCommand;
     url: null;
     filterQuery?: string;
 };

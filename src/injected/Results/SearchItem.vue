@@ -12,7 +12,7 @@
             {{ result.type }}
         </span>
         <span v-else class="card-item-type-card">
-            {{ isChromeTabGroup(result) ? 'Tab Group' : 'Bookmark' }}
+            {{ result.cardName }}
         </span>
     </div>
 </template>

@@ -1,8 +1,8 @@
-import { onMounted, ref, watch, type Ref } from "vue";
+import { ref } from "vue";
 import {
     ColorScheme,
-    Theme,
-    type ChromeStorageScheme,
+    ResultParameterType,
+    ResultType,
     type Mapping,
     type UserPreferences,
 } from "../utilities/types";
@@ -187,7 +187,6 @@ export const useChromeSyncStorage = () => {
                     userPreferences.value = next;
                 }
             }
-
             if (changes[mappingsKey]) {
                 const next = changes[mappingsKey].newValue;
                 if (!isEqual(next, mappings.value)) {

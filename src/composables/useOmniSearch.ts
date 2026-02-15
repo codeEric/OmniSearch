@@ -1,11 +1,13 @@
 import { predefinedCommands } from "@/utilities/predefinedCommands";
 import { isBookmarkArray, isTabGroupArray } from "@/utilities/typeGuards";
 import {
+    PredefinedCommandType,
     ResultType,
     type ChromeBookmark,
     type ChromeTab,
     type ChromeTabGroup,
     type Mapping,
+    type PredefinedCommandResult,
     type Result,
     type SpecialMapping,
 } from "@/utilities/types";
@@ -129,35 +131,67 @@ export function useOmniSearch(
                 command.keywords.some((keyword) => keyword === normalizedQuery)
             ) {
                 currentCommandInAction.value = command;
-                const results = await command.action();
-                if (!results || results.length === 0) return [];
-                if (isTabGroupArray(results)) {
-                    const mapped: ChromeTabGroup[] = results.map((group) => ({
-                        id: group.id.toString(),
-                        title: group.title || "Untitled Group",
-                        color: getHexFromColorName(group.color),
-                        type: ResultType.PredefinedCommand,
-                        url: null,
-                    }));
-                    return mapped;
-                } else if (isBookmarkArray(results)) {
-                    const mapped: ChromeBookmark[] | undefined =
-                        results[0]?.children?.[0].children?.map(
-                            (bookmark: any) => ({
-                                id: bookmark.id,
-                                title: bookmark.title,
-                                url: bookmark.url || "",
-                                icon: `https://www.google.com/s2/favicons?domain=${new URL(bookmark?.url ?? "").hostname}&sz=128`,
-                                type: ResultType.PredefinedCommand,
-                            }),
-                        );
-                    return mapped ?? [];
-                } else {
-                    return [];
+                const result = await command.action();
+                if (!result || result.data.length === 0) return [];
+
+                switch (result.type) {
+                    case PredefinedCommandType.Bookmarks:
+                        return mapBookmarks(result.data, result.type);
+
+                    case PredefinedCommandType.TabGroups:
+                        return mapTabGroups(result.data, result.type);
+
+                    case PredefinedCommandType.Mappings:
+                        return mapMappings(result.data, result.type);
                 }
             }
         }
         return [];
+    };
+
+    const mapBookmarks = (
+        bookmarks: chrome.bookmarks.BookmarkTreeNode[],
+        resultType: string,
+    ) => {
+        const mapped: PredefinedCommandResult[] | undefined =
+            bookmarks[0]?.children?.[0].children?.map((bookmark: any) => ({
+                id: bookmark.id,
+                title: bookmark.title,
+                url: bookmark.url || "",
+                icon: `https://www.google.com/s2/favicons?domain=${new URL(bookmark?.url ?? "").hostname}&sz=128`,
+                type: ResultType.PredefinedCommand,
+                cardName: "Bookmark",
+                predefinedCommandType: resultType,
+            }));
+        return mapped ?? [];
+    };
+
+    const mapTabGroups = (
+        tabGroups: chrome.tabGroups.TabGroup[],
+        resultType: string,
+    ) => {
+        const mapped: PredefinedCommandResult[] = tabGroups.map((group) => ({
+            id: group.id.toString(),
+            title: group.title || "Untitled Group",
+            color: getHexFromColorName(group.color),
+            type: ResultType.PredefinedCommand,
+            cardName: "Tab Group",
+            url: null,
+            predefinedCommandType: resultType,
+        }));
+        return mapped;
+    };
+
+    const mapMappings = (mappings: Mapping[], resultType: string) => {
+        console.log(mappings);
+        const mapped: PredefinedCommandResult[] = mappings.map((mapping) => ({
+            ...mapping.tab,
+            type: ResultType.PredefinedCommand,
+            cardName: "Mapping Definition",
+            predefinedCommandType: resultType,
+        }));
+
+        return mapped;
     };
 
     const getHexFromColorName = (

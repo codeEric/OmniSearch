@@ -24,7 +24,7 @@
         <div>
             <span class="statusbar-keybind">
                 <KeyCard keyName="Esc" textClass="statusbar-card-text" />
-                Close
+                {{ escapeKey }}
             </span>
 
         </div>
@@ -43,6 +43,10 @@ defineProps({
     selectKeyMod: {
         type: String,
         default: 'Select'
+    },
+    escapeKey: {
+        type: String,
+        default: "Close"
     }
 });
 

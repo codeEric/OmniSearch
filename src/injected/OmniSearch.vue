@@ -1,13 +1,23 @@
 <template>
-    <SearchBar v-model="searchQuery" :selectedResult="filteredResults[selectedIndex]" :parametersQuery="parametersQuery"
-        @update:parametersQuery="updateParametersQuery" @clear:parametersQuery="clearReactive(parametersQuery)"
-        :focusedInput="focusedInput" :currentCommandInAction="currentCommandInAction" />
+    <template v-if="currentView === ViewType.Default">
+        <SearchBar v-model="searchQuery" :selectedResult="filteredResults[selectedIndex]"
+            :parametersQuery="parametersQuery" @update:parametersQuery="updateParametersQuery"
+            @clear:parametersQuery="clearReactive(parametersQuery)" :focusedInput="focusedInput"
+            :currentCommandInAction="currentCommandInAction" />
+        <hr class="separator" />
+        <SearchResults :isMathExpression="isMathExpression" :mathExpression="searchQuery"
+            :mathExpressionResult="calculatedResult ?? ''" :results="filteredResults"
+            :selectedResultIndex="selectedIndex" />
+    </template>
+    <template v-else-if="currentView === ViewType.MappingCreation">
+
+    </template>
+    <template v-else-if="currentView === ViewType.MappingEdit">
+
+    </template>
     <hr class="separator" />
-    <SearchResults :isMathExpression="isMathExpression" :mathExpression="searchQuery"
-        :mathExpressionResult="calculatedResult ?? ''" :results="filteredResults"
-        :selectedResultIndex="selectedIndex" />
-    <hr class="separator" />
-    <SearchStatusBar :selectKey="selectKeyText" :selectKeyMod="selectKeyModText ?? selectKeyText" />
+    <SearchStatusBar :selectKey="selectKeyText" :selectKeyMod="selectKeyModText ?? selectKeyText"
+        :escapeKey="currentView !== ViewType.Default ? 'Back' : 'Close'" />
 </template>
 
 <script setup lang="ts">
@@ -15,7 +25,7 @@ import { computed, reactive, ref } from "vue";
 import SearchBar from "./SearchBar/SearchBar.vue";
 import SearchResults from "./Results/SearchResults.vue";
 import SearchStatusBar from "./StatusBar/SearchStatusBar.vue";
-import { ResultType, type ChromeTab } from "../utilities/types";
+import { ResultType, ViewType, type ChromeTab } from "../utilities/types";
 import { clearReactive } from "../utilities/helpers";
 import { useChromeSyncStorage, useKeyboardHandler, useMathExpressions, useOmniSearch } from "../composables";
 
@@ -25,6 +35,8 @@ const props = defineProps<{
 const searchQuery = ref('');
 const parametersQuery = reactive<Record<string, string>>({});
 const focusedInput = ref(0);
+const currentView = ref<ViewType>(ViewType.Default);
+
 
 const selectKeyText = computed(() => {
     if (isMathExpression.value) return 'Copy answer';
@@ -47,7 +59,8 @@ const { handler } = useKeyboardHandler({
     filteredResults,
     isMathExpression,
     calculatedResult,
-    parametersQuery
+    parametersQuery,
+    currentView
 });
 
 const updateParametersQuery = (key: string, value: string) => {
