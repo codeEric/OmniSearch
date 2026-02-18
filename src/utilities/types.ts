@@ -35,12 +35,6 @@ export enum ColorScheme {
     Sunset = "Sunset",
 }
 
-export enum PredefinedCommandType {
-    TabGroups = "tabgroups",
-    Bookmarks = "bookmarks",
-    Mappings = "mappings",
-}
-
 export enum ViewType {
     Default = "Default",
     MappingCreation = "MappingCreation",
@@ -56,7 +50,6 @@ export enum ResultType {
     Tab = "Tab",
     Search = "Search",
     Command = "Command",
-    PredefinedCommand = "PredefinedCommand",
 }
 
 export type TabResult = Omit<BaseResult, "type"> & {
@@ -72,21 +65,7 @@ export type CommandResult = Omit<BaseResult, "type"> & {
     parameters: ResultParameter[];
 };
 
-export type PredefinedCommandResult = (
-    | ChromeBookmark
-    | ChromeTabGroup
-    | CommandResult
-) & {
-    type: ResultType.PredefinedCommand;
-    cardName?: string;
-    predefinedCommandType: PredefinedCommandType;
-};
-
-export type Result =
-    | TabResult
-    | SearchResult
-    | CommandResult
-    | PredefinedCommandResult;
+export type Result = TabResult | SearchResult | CommandResult;
 
 export type UserPreferences = {
     enabled: boolean;
@@ -99,30 +78,9 @@ export type UserPreferences = {
     showDefault: boolean;
 };
 
-export type ChromeStorageScheme<T> = {
-    [key: string]: T;
-};
-
 export type Mapping = {
     keywords: string[];
     tab: CommandResult;
-};
-
-export type PredefinedCommand =
-    | {
-          type: PredefinedCommandType.TabGroups;
-          data: chrome.tabGroups.TabGroup[];
-      }
-    | {
-          type: PredefinedCommandType.Bookmarks;
-          data: chrome.bookmarks.BookmarkTreeNode[];
-      }
-    | { type: PredefinedCommandType.Mappings; data: Mapping[] };
-
-export type SpecialMapping = {
-    keywords: string[];
-    action: () => Promise<PredefinedCommand>;
-    filterQuery?: string;
 };
 
 export type ChromeTab = {
@@ -131,22 +89,6 @@ export type ChromeTab = {
     title?: string;
     favIconUrl?: string;
     active?: boolean;
-};
-
-export type ChromeBookmark = {
-    id: string;
-    title: string;
-    url: string;
-    icon: string;
-    filterQuery?: string;
-};
-
-export type ChromeTabGroup = {
-    id: string;
-    title: string;
-    color: string;
-    url: null;
-    filterQuery?: string;
 };
 
 export type TabFilterCommand = "HIDE_OMNI_SEARCH" | "OPEN_SELECTED_TAB";
@@ -161,5 +103,4 @@ export enum GroupType {
     Tabs = "Tabs",
     TabGroups = "TabGroups",
     Bookmarks = "Bookmarks",
-    Mappings = "Mappings",
 }

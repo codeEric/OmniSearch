@@ -1,16 +1,3 @@
-import { ResultType, type ChromeTabGroup } from "./types";
-
-export function isChromeTabGroup(result: any): result is ChromeTabGroup {
-    return (
-        result != null &&
-        typeof result.id === "string" &&
-        typeof result.title === "string" &&
-        typeof result.color === "string" &&
-        result.url === null &&
-        result.type === ResultType.PredefinedCommand
-    );
-}
-
 export function isTabGroupArray(
     arr: any[],
 ): arr is chrome.tabGroups.TabGroup[] {

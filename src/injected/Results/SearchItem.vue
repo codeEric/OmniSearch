@@ -2,26 +2,17 @@
     <div class="card-item" :class="{ 'selected': selectedResult }">
         <div class="card-item-content">
             <component v-if="result?.url && result.url.includes('chrome://')" :is="getChromeIcon(result.url)" />
-            <component v-else-if="isChromeTabGroup(result)" :size="24" :color="result.color" :is="FolderIcon" />
             <img v-else-if="result?.icon" :src="result.icon" class="card-item-favicon" />
             <span class="card-item-text">
                 {{ result?.title }}
             </span>
         </div>
-        <span v-if="result.type !== ResultType.PredefinedCommand" class="card-item-type-card">
-            {{ result.type }}
-        </span>
-        <span v-else class="card-item-type-card">
-            {{ result.cardName }}
-        </span>
     </div>
 </template>
 
 <script setup lang="ts">
-import { ResultType, type Result } from '../../utilities/types';
+import { type Result } from '../../utilities/types';
 import { ChromeGlobeIcon, ChromeAppsIcon, ChromeStarIcon, ChromeDownloadsIcon, ChromePuzzleIcon, ChromeFlaskIcon, ChromeChromeIcon, ChromeHistoryIcon, ChromeSettingsIcon } from '../../components/icons';
-import FolderIcon from '@/components/icons/FolderIcon.vue';
-import { isChromeTabGroup } from '@/utilities/typeGuards';
 
 const props = defineProps<{
     result: Result,

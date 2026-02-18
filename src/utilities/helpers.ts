@@ -45,3 +45,51 @@ export const getPageBackgroundMode = () => {
 
     return brightness < 128 ? "dark" : "light";
 };
+
+export const getHexFromColorName = (
+    colorName: chrome.tabGroups.TabGroup["color"],
+): string => {
+    const colorMap: Record<chrome.tabGroups.TabGroup["color"], string> = {
+        grey: "#dadce0",
+        blue: "#89b5f8",
+        red: "#f28b82",
+        yellow: "#fdd663",
+        green: "#80c995",
+        pink: "#ff8acb",
+        purple: "#c68af9",
+        cyan: "#77d9ec",
+        orange: "#fcad6f",
+    };
+
+    return colorMap[colorName] || "#000000";
+};
+
+export const chromeSendMessage = (
+    command: string,
+    dataKey: string,
+    data: unknown,
+) => {
+    chrome.runtime.sendMessage({
+        command: command,
+        [dataKey]: data,
+    });
+};
+
+export const postWindowMessage = (
+    type: string,
+    command: string,
+    dataKey?: string,
+    data?: unknown,
+    targetOrigin: string = "*",
+) => {
+    const payload: { type: string; command: string; [key: string]: unknown } = {
+        type,
+        command,
+    };
+
+    if (dataKey) {
+        payload[dataKey] = data;
+    }
+
+    window.postMessage(payload, targetOrigin);
+};

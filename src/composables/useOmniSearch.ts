@@ -1,15 +1,8 @@
-import { predefinedCommands } from "@/utilities/predefinedCommands";
-import { isBookmarkArray, isTabGroupArray } from "@/utilities/typeGuards";
 import {
-    PredefinedCommandType,
     ResultType,
-    type ChromeBookmark,
     type ChromeTab,
-    type ChromeTabGroup,
     type Mapping,
-    type PredefinedCommandResult,
     type Result,
-    type SpecialMapping,
 } from "@/utilities/types";
 import { ref, watchEffect, type Ref } from "vue";
 
@@ -20,8 +13,6 @@ export function useOmniSearch(
 ) {
     const selectedIndex = ref(0);
     const filteredResults = ref<Result[]>([]);
-    const predefinedCommandResults = ref<Result[]>([]);
-    const currentCommandInAction = ref<SpecialMapping | null>(null);
 
     watchEffect(async () => {
         selectedIndex.value = 0;
@@ -31,37 +22,6 @@ export function useOmniSearch(
         let additionalTabs: Result[] = [];
 
         if (query) {
-            if (isPredefinedCommands(query)) {
-                if (!predefinedCommandResults.value.length) {
-                    predefinedCommandResults.value =
-                        await getPredinedCommandResults(query);
-                }
-
-                filteredResults.value = predefinedCommandResults.value
-                    .filter(
-                        (result) =>
-                            result.title
-                                .toLowerCase()
-                                .includes(
-                                    currentCommandInAction.value?.filterQuery ??
-                                        "",
-                                ) ||
-                            (result?.url &&
-                                result?.url
-                                    .toLowerCase()
-                                    .includes(
-                                        currentCommandInAction.value
-                                            ?.filterQuery ?? "",
-                                    )),
-                    )
-                    .slice(0, 6);
-                return;
-            }
-            if (currentCommandInAction.value) {
-                predefinedCommandResults.value = [];
-                currentCommandInAction.value = null;
-            }
-
             chromeTabs = tabs.value
                 .filter(
                     (tab) =>
@@ -115,106 +75,8 @@ export function useOmniSearch(
         return tabs;
     };
 
-    const isPredefinedCommands = (query: string) => {
-        const normalizedQuery = query.trim();
-
-        return predefinedCommands.some((command) =>
-            command.keywords.some((keyword) => keyword === normalizedQuery),
-        );
-    };
-
-    const getPredinedCommandResults = async (query: string) => {
-        const normalizedQuery = query.trim();
-
-        for (const command of predefinedCommands) {
-            if (
-                command.keywords.some((keyword) => keyword === normalizedQuery)
-            ) {
-                currentCommandInAction.value = command;
-                const result = await command.action();
-                if (!result || result.data.length === 0) return [];
-
-                switch (result.type) {
-                    case PredefinedCommandType.Bookmarks:
-                        return mapBookmarks(result.data, result.type);
-
-                    case PredefinedCommandType.TabGroups:
-                        return mapTabGroups(result.data, result.type);
-
-                    case PredefinedCommandType.Mappings:
-                        return mapMappings(result.data, result.type);
-                }
-            }
-        }
-        return [];
-    };
-
-    const mapBookmarks = (
-        bookmarks: chrome.bookmarks.BookmarkTreeNode[],
-        resultType: string,
-    ) => {
-        const mapped: PredefinedCommandResult[] | undefined =
-            bookmarks[0]?.children?.[0].children?.map((bookmark: any) => ({
-                id: bookmark.id,
-                title: bookmark.title,
-                url: bookmark.url || "",
-                icon: `https://www.google.com/s2/favicons?domain=${new URL(bookmark?.url ?? "").hostname}&sz=128`,
-                type: ResultType.PredefinedCommand,
-                cardName: "Bookmark",
-                predefinedCommandType: resultType,
-            }));
-        return mapped ?? [];
-    };
-
-    const mapTabGroups = (
-        tabGroups: chrome.tabGroups.TabGroup[],
-        resultType: string,
-    ) => {
-        const mapped: PredefinedCommandResult[] = tabGroups.map((group) => ({
-            id: group.id.toString(),
-            title: group.title || "Untitled Group",
-            color: getHexFromColorName(group.color),
-            type: ResultType.PredefinedCommand,
-            cardName: "Tab Group",
-            url: null,
-            predefinedCommandType: resultType,
-        }));
-        return mapped;
-    };
-
-    const mapMappings = (mappings: Mapping[], resultType: string) => {
-        console.log(mappings);
-        const mapped: PredefinedCommandResult[] = mappings.map((mapping) => ({
-            ...mapping.tab,
-            type: ResultType.PredefinedCommand,
-            cardName: "Mapping Definition",
-            predefinedCommandType: resultType,
-        }));
-
-        return mapped;
-    };
-
-    const getHexFromColorName = (
-        colorName: chrome.tabGroups.TabGroup["color"],
-    ): string => {
-        const colorMap: Record<chrome.tabGroups.TabGroup["color"], string> = {
-            grey: "#dadce0",
-            blue: "#89b5f8",
-            red: "#f28b82",
-            yellow: "#fdd663",
-            green: "#80c995",
-            pink: "#ff8acb",
-            purple: "#c68af9",
-            cyan: "#77d9ec",
-            orange: "#fcad6f",
-        };
-
-        return colorMap[colorName] || "#000000";
-    };
-
     return {
         filteredResults,
         selectedIndex,
-        currentCommandInAction,
     };
 }
