@@ -1,5 +1,6 @@
 import mainCss from "../main.css?inline";
 import cardCss from "../card.css?inline";
+import mappingCss from "../mapping.css?inline";
 
 export async function initializeShadowHost() {
     const shadowHost = document.createElement("div");
@@ -11,7 +12,7 @@ export async function initializeShadowHost() {
     rootContainer.id = "os-ext-omni-search-root";
 
     const styleElement = document.createElement("style");
-    styleElement.textContent = mainCss + "\n" + cardCss;
+    styleElement.textContent = mainCss + "\n" + cardCss + "\n" + mappingCss;
 
     shadowRoot.appendChild(styleElement);
     shadowRoot.appendChild(rootContainer);

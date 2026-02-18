@@ -7,7 +7,7 @@ import {
 export const replaceUrl = (
     baseUrl: string,
     replaceParameters?: ResultParameter[],
-    parametersQuery?: Record<string, string>
+    parametersQuery?: Record<string, string>,
 ) => {
     if (!replaceParameters) {
         return baseUrl;
@@ -16,8 +16,8 @@ export const replaceUrl = (
         baseUrl = baseUrl.replace(
             `{${parameter.name}}`,
             encodeURIComponent(
-                parametersQuery?.[parameter.name] ?? parameter.default!
-            )
+                parametersQuery?.[parameter.name] ?? parameter.default!,
+            ),
         );
     });
 
@@ -26,7 +26,7 @@ export const replaceUrl = (
 
 const buildQuery = (
     queryParameters: ResultParameter[],
-    parametersQuery: Record<string, string>
+    parametersQuery: Record<string, string>,
 ) => {
     const queries = queryParameters.map((parameter) => {
         let queryValue = parametersQuery?.[parameter.name] ?? parameter.default;
@@ -48,19 +48,21 @@ const buildQuery = (
 
 export const buildCommandUrl = (
     command: CommandResult,
-    parametersQuery: Record<string, string>
+    parametersQuery: Record<string, string>,
 ) => {
     let baseUrl = command.url.trim().replace(/ /g, "");
     let query = "";
     const replaceParameters = command.parameters.filter(
-        (parameter) => parameter.type === ResultParameterType.Replace
+        (parameter) => parameter.type === ResultParameterType.Replace,
     );
+    console.log(command.parameters);
+
     if (replaceParameters.length > 0) {
         baseUrl = replaceUrl(baseUrl, replaceParameters, parametersQuery);
     }
 
     const queryParameters = command.parameters.filter(
-        (parameter) => parameter.type === ResultParameterType.Query
+        (parameter) => parameter.type === ResultParameterType.Query,
     );
 
     if (queryParameters.length > 0) {

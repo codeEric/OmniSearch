@@ -15,8 +15,8 @@ export type ResultParameter = {
 };
 
 export enum ResultParameterType {
-    Query,
-    Replace,
+    Query = "Query",
+    Replace = "Replace",
 }
 
 export enum Theme {
@@ -36,15 +36,15 @@ export enum ColorScheme {
 }
 
 export enum PredefinedCommandType {
-    TabGroups = "tabgroups",
+    TabGroups = "tabGroups",
     Bookmarks = "bookmarks",
     Mappings = "mappings",
+    AddMapping = "addMapping",
 }
 
 export enum ViewType {
     Default = "Default",
     MappingCreation = "MappingCreation",
-    MappingEdit = "MappingEdit",
 }
 
 export type ColorSchemeHues = {
@@ -76,6 +76,7 @@ export type PredefinedCommandResult = (
     | ChromeBookmark
     | ChromeTabGroup
     | CommandResult
+    | AddMapping
 ) & {
     type: ResultType.PredefinedCommand;
     cardName?: string;
@@ -117,7 +118,8 @@ export type PredefinedCommand =
           type: PredefinedCommandType.Bookmarks;
           data: chrome.bookmarks.BookmarkTreeNode[];
       }
-    | { type: PredefinedCommandType.Mappings; data: Mapping[] };
+    | { type: PredefinedCommandType.Mappings; data: Mapping[] }
+    | { type: PredefinedCommandType.AddMapping; data: null };
 
 export type SpecialMapping = {
     keywords: string[];
@@ -147,6 +149,12 @@ export type ChromeTabGroup = {
     color: string;
     url: null;
     filterQuery?: string;
+};
+
+export type AddMapping = {
+    id: string;
+    title: string;
+    url: null;
 };
 
 export type TabFilterCommand = "HIDE_OMNI_SEARCH" | "OPEN_SELECTED_TAB";

@@ -10,6 +10,8 @@
     width: 100vw;
     height: 100vh;
     z-index: 2147483647;
+    --textColor: hsl(0 0 100% / 0.65);
+    --placeholderTextColor: hsl(0 0 100% / 0.4);
 }
 
 #os-ext-omni-search-root {
@@ -238,4 +240,147 @@
 .color-scheme-picker {
     display: flex;
     justify-content: space-between;
+}
+
+.input-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25em;
+    margin: 0.1em 0;
+}
+
+.input-label {
+    display: block;
+    font-size: 1em;
+    font-weight: 500;
+    color: var(--textColor);
+}
+
+.input-field {
+    padding: 0.5em 0.675em;
+    border: 1px solid hsl(var(--bottomHue) 15% 30% / 0.7);
+    background: linear-gradient(to bottom,
+            hsl(var(--topHue) 20% 20% / 0.1) 50%,
+            hsl(var(--topHue) 50% 50% / 0.8) 180%);
+    background-size: 100% 300%;
+    background-position: 0% 0%;
+    background-repeat: no-repeat;
+    border-radius: calc(var(--radius) * 0.33333);
+    box-shadow: 0 0 0 1px transparent;
+    font-weight: 300;
+    font-family: 'Asap', sans-serif;
+
+    font-family: inherit;
+    outline: 1px solid transparent;
+
+    color: var(--textColor);
+    font-size: 1.125em;
+}
+
+.input-field:focus {
+    border-color: hsl(var(--topHue) 20% 70% / 0.5);
+    background-position: 0% 50%;
+    color: hsl(var(--topHue) 20% 80% / 1);
+}
+
+.tag-input {
+    background: transparent;
+    border: none;
+    width: 100%;
+    height: 100%;
+    font-size: inherit;
+    color: inherit;
+    outline: none;
+    padding: 0;
+    display: block;
+    padding: 0.5em 0;
+}
+
+.tag-input:focus {
+    border-color: hsl(var(--topHue) 20% 70% / 0.5);
+    background-position: 0% 50%;
+    color: hsl(var(--topHue) 20% 80% / 1);
+}
+
+.input-field.tag-input-field {
+    padding: 0em 0.675em;
+    display: flex;
+    gap: 0.5em;
+}
+
+.tag-input-card {
+    font-size: 0.875em;
+    border-radius: 0.5em;
+    padding: 0.125em 0.5em;
+    display: flex;
+    align-self: center;
+    backdrop-filter: blur(10px);
+    color: var(--placeholderTextColor);
+    border: 1px solid hsl(var(--bottomHue) 42% 38% / 0.65);
+    background: linear-gradient(90deg in oklch,
+            hsl(var(--bottomHue) 15% 16% / 0.8),
+            hsl(var(--bottomHue) 40% 24% / 0.8) 10% 20%,
+            hsl(var(--nottomHue) 2% 12% / 0) 90%) border-box;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.25em;
+}
+
+.tag-input-card>svg {
+    stroke: hsl(var(--topHue) 15% 100% / 1);
+    cursor: pointer;
+}
+
+.button-component {
+    background: linear-gradient(90deg in oklch,
+            hsl(var(--itemHue) 30% 15% / var(--item-opacity)),
+            hsl(var(--itemHue) 31% 16% / var(--item-opacity)) 25% 33%,
+            hsl(var(--itemHue) 6% 9% / 0) 90%) border-box;
+
+    cursor: pointer;
+    --itemHue: var(--bottomHue);
+    position: relative;
+    margin: 0.25em 0;
+    padding: 0.5em;
+    font-size: 0.95em;
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    border-radius: calc(var(--radius) * 0.33333);
+    border: 1px solid hsl(var(--bottomHue) 15% 30% / 0.7);
+    transition: all 0.3s ease-in, --item-opacity 0.3s ease-in;
+    color: var(--textColor);
+}
+
+.button-component svg {
+    stroke: hsl(0 0% 80%) !important;
+}
+
+.button-component::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    border: inherit;
+    background: linear-gradient(90deg in oklch,
+            hsl(var(--itemHue) 15% 16% / var(--item-opacity)),
+            hsl(var(--itemHue) 40% 24% / var(--item-opacity)) 20% 32%,
+            hsl(var(--itemHue) 2% 12% / 0) 90%) border-box;
+    mask: linear-gradient(transparent),
+        linear-gradient(to right, black, transparent);
+    mask-repeat: no-repeat;
+    mask-clip: padding-box, border-box;
+    mask-composite: subtract;
+}
+
+.button-component:hover,
+.button-component:hover::after,
+.card-item.selected::after,
+.card-item:focus,
+.card-item:focus::after {
+    --item-opacity: 0.8;
+    transition: all 0.1s ease-out, --item-opacity 0.1s ease-out;
+    color: white;
+    outline: none;
 }

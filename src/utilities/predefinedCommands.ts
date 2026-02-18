@@ -1,5 +1,5 @@
 import { useChromeSyncStorage } from "@/composables";
-import type { SpecialMapping } from "./types";
+import { PredefinedCommandType, type SpecialMapping } from "./types";
 
 export const predefinedCommands: SpecialMapping[] = [
     {
@@ -9,7 +9,10 @@ export const predefinedCommands: SpecialMapping[] = [
                 chrome.runtime.sendMessage(
                     { command: "GET_BOOKMARKS" },
                     (response) => {
-                        resolve({ type: "bookmarks", data: response });
+                        resolve({
+                            type: PredefinedCommandType.Bookmarks,
+                            data: response,
+                        });
                     },
                 );
             });
@@ -29,7 +32,10 @@ export const predefinedCommands: SpecialMapping[] = [
                 chrome.runtime.sendMessage(
                     { command: "GET_TAB_GROUPS" },
                     (response) => {
-                        resolve({ type: "tabgroups", data: response });
+                        resolve({
+                            type: PredefinedCommandType.TabGroups,
+                            data: response,
+                        });
                     },
                 );
             });
@@ -38,7 +44,12 @@ export const predefinedCommands: SpecialMapping[] = [
     {
         keywords: ["!add", "!new", "!create"],
         action: async () => {
-            return new Promise((resolve) => {});
+            return new Promise((resolve) => {
+                resolve({
+                    type: PredefinedCommandType.AddMapping,
+                    data: null,
+                });
+            });
         },
     },
     {
@@ -47,7 +58,10 @@ export const predefinedCommands: SpecialMapping[] = [
             const { init, mappings } = useChromeSyncStorage();
             await init();
             return new Promise((resolve) => {
-                resolve({ type: "mappings", data: mappings.value });
+                resolve({
+                    type: PredefinedCommandType.Mappings,
+                    data: mappings.value,
+                });
             });
         },
     },

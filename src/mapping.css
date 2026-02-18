@@ -1,0 +1,172 @@
+.create-mapping-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25em;
+}
+
+.create-mapping-container .toggle-label,
+.parameter-form-container .toggle-label {
+    font-size: 1em;
+}
+
+.create-mapping-container .toggle,
+.parameter-form-container .toggle {
+    height: 1.53em;
+    width: 2.3em;
+}
+
+.create-mapping-container .toggle-thumb,
+.parameter-form-container .toggle-thumb {
+    width: 1em;
+    height: 1em;
+}
+
+.add-parameter-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0.5em 1em;
+}
+
+.radio-label-container {
+    margin: 0.75em 0;
+}
+
+.radio-label {
+    margin-bottom: 0.75em;
+    color: var(--textColor);
+}
+
+.radio-group-container {
+    display: flex;
+    gap: 1.5em;
+}
+
+.radio-container {
+    position: relative;
+    height: 2.25rem;
+    width: 4.5rem;
+}
+
+.radio-button {
+    opacity: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 110%;
+    width: 108%;
+    margin: 0;
+    cursor: pointer;
+}
+
+.radio-tile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    border: 2px solid black;
+    border-radius: 5px;
+    transition: transform 300ms ease;
+}
+
+.radio-tile-label {
+    text-align: center;
+    font-size: 0.75em;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: black;
+    user-select: none;
+}
+
+.radio-button:checked+.radio-tile {
+    background-color: black;
+    border: 2px solid black;
+    color: white;
+    transform: scale(1.1, 1.1);
+}
+
+.radio-tile-label {
+    color: white;
+    background-color: black;
+}
+
+.add-parameter-button {
+    border-radius: 0.75em;
+    border: 1px solid var(--border-color);
+    background: linear-gradient(235deg,
+            hsl(var(--topHue) 50% 10% / 0.8),
+            hsl(var(--topHue) 50% 10% / 0) 33%),
+        linear-gradient(45deg,
+            hsl(var(--bottomHue) 50% 10% / 0.8),
+            hsl(var(--bottomHue) 50% 10% / 0) 33%),
+        linear-gradient(hsl(220deg 25% 4.8% / 0.66));
+    backdrop-filter: blur(4px);
+    box-shadow: hsl(var(--bottomHue) 50% 2%) 0px 10px 16px -8px,
+        hsl(var(--bottomHue) 50% 4%) 0px 20px 36px -14px;
+
+    color: hsl(0 0% 90%);
+    font-size: 0.95em;
+    cursor: pointer;
+    transition: all 1s ease-in-out;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 14em;
+}
+
+.add-parameter-button:hover {
+    background: linear-gradient(235deg,
+            hsl(var(--topHue) 50% 20% / 0.8),
+            hsl(var(--topHue) 50% 20% / 0) 33%),
+        linear-gradient(45deg,
+            hsl(var(--bottomHue) 50% 20% / 0.8),
+            hsl(var(--bottomHue) 50% 20% / 0) 33%),
+        linear-gradient(hsl(220deg 25% 8% / 0.66));
+}
+
+
+.parameter-table {
+    width: 100%
+}
+
+.table-label {
+    display: flex;
+    align-items: center;
+    gap: 0.25em;
+}
+
+.table-label-plus-btn {
+    stroke: hsl(0, 0%, 70%);
+    cursor: pointer;
+    transition: all 0.15s ease-in-out;
+}
+
+.table-label-plus-btn:hover {
+    stroke: hsl(var(--bottomHue) 50% 50% / 0.8);
+    cursor: pointer;
+}
+
+.table-heading {
+    color: var(--textColor);
+}
+
+.table-data {
+    color: var(--textColor);
+    text-align: center;
+}
+
+.table-actions {
+    display: flex;
+    gap: 0.75em;
+}
+
+.table-action {
+    cursor: pointer;
+    transition: all 0.15s ease-in-out;
+}
+
+.table-action:hover {
+    opacity: 0.8;
+}

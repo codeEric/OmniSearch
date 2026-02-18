@@ -1,5 +1,9 @@
-import { clearReactive } from "@/utilities/helpers";
-import { isChromeTabGroup } from "@/utilities/typeGuards";
+import {
+    clearReactive,
+    postWindowMessage,
+    sendChromeMessage,
+} from "@/utilities/helpers";
+import { isChromeTabGroup, isPredefinedCommand } from "@/utilities/typeGuards";
 import {
     PredefinedCommandType,
     ResultType,
@@ -54,13 +58,7 @@ export const useKeyboardHandler = (deps: HandlerDeps) => {
                     return;
                 }
                 if (!searchQuery.value) {
-                    window.postMessage(
-                        {
-                            type: "FROM_TAB_FILTER",
-                            command: "HIDE_OMNI_SEARCH",
-                        },
-                        "*",
-                    );
+                    postWindowMessage("FROM_TAB_FILTER", "HIDE_OMNI_SEARCH");
                 } else {
                     searchQuery.value = "";
                     clearReactive(parametersQuery);
@@ -97,83 +95,81 @@ export const useKeyboardHandler = (deps: HandlerDeps) => {
                     navigator.clipboard.writeText(
                         calculatedResult.value as unknown as string,
                     );
-                    window.postMessage(
-                        {
-                            type: "FROM_TAB_FILTER",
-                            command: "HIDE_OMNI_SEARCH",
-                        },
-                        "*",
-                    );
+                    postWindowMessage("FROM_TAB_FILTER", "HIDE_OMNI_SEARCH");
                 }
 
                 switch (selectedResult.type) {
                     case ResultType.Tab:
-                        window.postMessage(
-                            {
-                                type: "FROM_TAB_FILTER",
-                                command: "OPEN_SELECTED_TAB",
-                                tabId: selectedResult.id,
-                            },
-                            "*",
+                        postWindowMessage(
+                            "FROM_TAB_FILTER",
+                            "OPEN_SELECTED_TAB",
+                            "tabId",
+                            selectedResult.id,
                         );
                         break;
                     case ResultType.Command:
-                        window.open(
-                            buildCommandUrl(
-                                selectedResult as CommandResult,
-                                parametersQuery,
-                            ),
+                        const commandUrl = buildCommandUrl(
+                            selectedResult,
+                            parametersQuery,
                         );
+                        window.open(commandUrl);
                         clearReactive(parametersQuery);
                         break;
                     case ResultType.Search:
                         window.open(selectedResult.url);
                         break;
                     case ResultType.PredefinedCommand:
-                        if (
-                            selectedResult.predefinedCommandType ===
-                            PredefinedCommandType.TabGroups
-                        ) {
-                            chrome.runtime.sendMessage({
-                                command: "TOGGLE_TAB_GROUP",
-                                tabGroupId: selectedResult.id,
-                            });
-                        } else if (
-                            selectedResult.predefinedCommandType ===
-                            PredefinedCommandType.Mappings
-                        ) {
-                            currentView.value = ViewType.MappingEdit;
-                        } else {
-                            if (selectedResult.url) {
-                                window.open(selectedResult.url);
-                            }
-                        }
+                        handleEnterKeyPredefinedCommand(selectedResult);
                         break;
                 }
 
                 break;
             case "Tab":
-                e.preventDefault();
-                if (selectedResult.type === ResultType.Command) {
-                    focusedInput.value =
-                        (focusedInput.value + 1) %
-                        ((
-                            filteredResults.value[
-                                selectedIndex.value
-                            ] as CommandResult
-                        ).parameters.length +
-                            1);
-                } else if (
-                    selectedResult.type === ResultType.PredefinedCommand
-                ) {
-                    focusedInput.value = (focusedInput.value + 1) % 2;
-                }
+                handleTabKey(e, selectedResult);
                 break;
         }
     };
 
     onMounted(() => window.addEventListener("keydown", handler, true));
     onUnmounted(() => window.removeEventListener("keydown", handler, true));
+
+    const handleEnterKeyPredefinedCommand = (selectedResult: Result) => {
+        if (!isPredefinedCommand(selectedResult)) return;
+        if (currentView.value === ViewType.MappingCreation) return;
+        switch (selectedResult.predefinedCommandType) {
+            case PredefinedCommandType.TabGroups:
+                sendChromeMessage(
+                    "TOGGLE_TAB_GROUP",
+                    "tabGroupId",
+                    selectedResult.id,
+                );
+                break;
+            case PredefinedCommandType.Mappings:
+                currentView.value = ViewType.MappingCreation;
+                break;
+            case PredefinedCommandType.AddMapping:
+                currentView.value = ViewType.MappingCreation;
+                break;
+            default:
+                if (selectedResult.url) {
+                    window.open(selectedResult.url);
+                }
+                break;
+        }
+    };
+
+    const handleTabKey = (e: Event, selectedResult: Result) => {
+        e.preventDefault();
+        if (selectedResult.type === ResultType.Command) {
+            focusedInput.value =
+                (focusedInput.value + 1) %
+                ((filteredResults.value[selectedIndex.value] as CommandResult)
+                    .parameters.length +
+                    1);
+        } else if (selectedResult.type === ResultType.PredefinedCommand) {
+            focusedInput.value = (focusedInput.value + 1) % 2;
+        }
+    };
 
     return { handler };
 };

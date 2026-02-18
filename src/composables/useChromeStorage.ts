@@ -66,7 +66,7 @@ const userPreferences = ref<UserPreferences>({
 //     keywords: ["code", "csearch"],
 //     tab: {
 //       id: crypto.randomUUID(),
-//       title: "Code Searh",
+//       title: "Code Search",
 //       type: ResultType.Command,
 //       icon: "https://www.google.com/s2/favicons?domain=omega365.com&sz=128",
 //       url: "https://dev.omega365.com/nt/codesearch",
@@ -79,72 +79,6 @@ const userPreferences = ref<UserPreferences>({
 //           query: "searchTerm=",
 //         },
 //       ],
-//     },
-//   },
-// ];
-
-// [
-//   {
-//     keywords: ["gpt", "chatgpt", "chat"],
-//     tab: {
-//       icon: "https://www.google.com/s2/favicons?domain=chatgpt.com&sz=128",
-//       id: "025f5deb-32e3-494b-be2a-22493ada1eef",
-//       parameters: [
-//         {
-//           default: null,
-//           name: "prompt",
-//           query: "q",
-//           required: false,
-//           type: 0,
-//         },
-//       ],
-//       title: "ChatGPT",
-//       type: "Command",
-//       url: "https://chatgpt.com",
-//     },
-//   },
-//   {
-//     keywords: ["wf", "workflow"],
-//     tab: {
-//       icon: "https://www.google.com/s2/favicons?domain=omega365.com&sz=128",
-//       id: "eb629fd1-230e-462a-8d9a-2274384c0342",
-//       parameters: [
-//         {
-//           default: null,
-//           name: "workflow",
-//           query: "/scope-workflow-form?ID",
-//           required: false,
-//           type: 0,
-//         },
-//         {
-//           default: "omega",
-//           name: "domain",
-//           required: false,
-//           type: 1,
-//         },
-//       ],
-//       title: "Omega",
-//       type: "Command",
-//       url: "https://{domain}.omega365.com/nt/scope-items",
-//     },
-//   },
-//   {
-//     keywords: ["code", "csearch"],
-//     tab: {
-//       icon: "https://www.google.com/s2/favicons?domain=omega365.com&sz=128",
-//       id: "f6d06189-670d-4de4-8332-ce86b59d0bd3",
-//       parameters: [
-//         {
-//           default: null,
-//           name: "workflow",
-//           query: "searchTerm=",
-//           required: false,
-//           type: 0,
-//         },
-//       ],
-//       title: "Code Searh",
-//       type: "Command",
-//       url: "https://dev.omega365.com/nt/codesearch",
 //     },
 //   },
 // ];

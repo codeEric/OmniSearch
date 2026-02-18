@@ -1,4 +1,11 @@
-import { ResultType, type ChromeTabGroup } from "./types";
+import {
+    PredefinedCommandType,
+    ResultType,
+    type AddMapping,
+    type ChromeBookmark,
+    type ChromeTabGroup,
+    type Result,
+} from "./types";
 
 export function isChromeTabGroup(result: any): result is ChromeTabGroup {
     return (
@@ -27,4 +34,23 @@ export function isBookmarkArray(
         Array.isArray(arr) &&
         arr.every((item) => item && typeof item.dateAdded === "number")
     );
+}
+
+export function isPredefinedCommand(result: Result): result is
+    | (ChromeBookmark & {
+          type: ResultType.PredefinedCommand;
+          predefinedCommandType: PredefinedCommandType;
+          cardName?: string;
+      })
+    | (ChromeTabGroup & {
+          type: ResultType.PredefinedCommand;
+          predefinedCommandType: PredefinedCommandType;
+          cardName?: string;
+      })
+    | (AddMapping & {
+          type: ResultType.PredefinedCommand;
+          predefinedCommandType: PredefinedCommandType;
+          cardName?: string;
+      }) {
+    return result.type === ResultType.PredefinedCommand;
 }

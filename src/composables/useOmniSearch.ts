@@ -1,11 +1,9 @@
+import { getHexFromColorName } from "@/utilities/helpers";
 import { predefinedCommands } from "@/utilities/predefinedCommands";
-import { isBookmarkArray, isTabGroupArray } from "@/utilities/typeGuards";
 import {
     PredefinedCommandType,
     ResultType,
-    type ChromeBookmark,
     type ChromeTab,
-    type ChromeTabGroup,
     type Mapping,
     type PredefinedCommandResult,
     type Result,
@@ -103,14 +101,14 @@ export function useOmniSearch(
     const handleCommands = (query: string): Result[] => {
         const tabs: Result[] = [];
 
-        // mappings.value?.forEach((mapping) => {
-        //     for (let keyword of mapping.keywords) {
-        //         if (query.trim().startsWith(keyword)) {
-        //             tabs.push(mapping.tab);
-        //             break;
-        //         }
-        //     }
-        // });
+        mappings.value?.forEach((mapping) => {
+            for (let keyword of mapping.keywords) {
+                if (query.trim().startsWith(keyword)) {
+                    tabs.push(mapping.tab);
+                    break;
+                }
+            }
+        });
 
         return tabs;
     };
@@ -132,7 +130,7 @@ export function useOmniSearch(
             ) {
                 currentCommandInAction.value = command;
                 const result = await command.action();
-                if (!result || result.data.length === 0) return [];
+                if (!result || result.data?.length === 0) return [];
 
                 switch (result.type) {
                     case PredefinedCommandType.Bookmarks:
@@ -143,6 +141,17 @@ export function useOmniSearch(
 
                     case PredefinedCommandType.Mappings:
                         return mapMappings(result.data, result.type);
+                    case PredefinedCommandType.AddMapping:
+                        return [
+                            {
+                                id: crypto.randomUUID(),
+                                title: "Create new mapping",
+                                type: ResultType.PredefinedCommand,
+                                cardName: "Mapping Creation",
+                                predefinedCommandType: result.type,
+                                url: null,
+                            } satisfies PredefinedCommandResult,
+                        ];
                 }
             }
         }
@@ -151,7 +160,7 @@ export function useOmniSearch(
 
     const mapBookmarks = (
         bookmarks: chrome.bookmarks.BookmarkTreeNode[],
-        resultType: string,
+        resultType: PredefinedCommandType,
     ) => {
         const mapped: PredefinedCommandResult[] | undefined =
             bookmarks[0]?.children?.[0].children?.map((bookmark: any) => ({
@@ -168,7 +177,7 @@ export function useOmniSearch(
 
     const mapTabGroups = (
         tabGroups: chrome.tabGroups.TabGroup[],
-        resultType: string,
+        resultType: PredefinedCommandType,
     ) => {
         const mapped: PredefinedCommandResult[] = tabGroups.map((group) => ({
             id: group.id.toString(),
@@ -182,8 +191,10 @@ export function useOmniSearch(
         return mapped;
     };
 
-    const mapMappings = (mappings: Mapping[], resultType: string) => {
-        console.log(mappings);
+    const mapMappings = (
+        mappings: Mapping[],
+        resultType: PredefinedCommandType,
+    ) => {
         const mapped: PredefinedCommandResult[] = mappings.map((mapping) => ({
             ...mapping.tab,
             type: ResultType.PredefinedCommand,
@@ -192,24 +203,6 @@ export function useOmniSearch(
         }));
 
         return mapped;
-    };
-
-    const getHexFromColorName = (
-        colorName: chrome.tabGroups.TabGroup["color"],
-    ): string => {
-        const colorMap: Record<chrome.tabGroups.TabGroup["color"], string> = {
-            grey: "#dadce0",
-            blue: "#89b5f8",
-            red: "#f28b82",
-            yellow: "#fdd663",
-            green: "#80c995",
-            pink: "#ff8acb",
-            purple: "#c68af9",
-            cyan: "#77d9ec",
-            orange: "#fcad6f",
-        };
-
-        return colorMap[colorName] || "#000000";
     };
 
     return {

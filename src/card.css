@@ -4,6 +4,7 @@
     min-height: 5em;
     max-height: 35%;
     padding: 3em;
+    margin-bottom: 20em;
 }
 
 .card {
@@ -229,7 +230,7 @@
     box-shadow: 0 0 0 1px transparent;
     font-weight: 300;
     font-family: 'Asap', sans-serif;
-    color: hsl(0 0 100% / 0.5);
+    color: var(--textColor);
 }
 
 .searchbar:focus-within {
@@ -243,7 +244,7 @@
     padding: 0.675em;
     outline: 1px solid transparent;
 
-    color: hsl(0 0 100% / 0.5);
+    color: var(--textColor);
     background: transparent;
     border: none;
     font-size: 1em;
@@ -257,7 +258,7 @@
 }
 
 .searchbar-input::placeholder {
-    color: hsl(0 0 100% / 0.4);
+    color: var(--placeholderTextColor);
 }
 
 .card.light .searchbar-input::placeholder {
@@ -369,12 +370,11 @@
     box-shadow: 0 0 0 1px transparent;
     font-weight: 300;
     font-family: 'Asap', sans-serif;
-    color: hsl(0 0 100% / 0.5);
+    color: var(--textColor);
 
     padding-left: 0.35em;
     outline: 1px solid transparent;
 
-    color: hsl(0 0 100% / 0.5);
     /* background: transparent; */
     /* border: none; */
     font-size: 0.9em;
@@ -392,7 +392,7 @@
 }
 
 .searchbar-param-input::placeholder {
-    color: hsl(0 0 100% / 0.4);
+    color: var(--placeholderTextColor);
 }
 
 .card.light .searchbar-param-input::placeholder {
@@ -464,7 +464,7 @@
 .card-item-content {
     display: flex;
     align-items: center;
-    max-width: 83.3333%;
+    max-width: 80%;
     width: 100%;
 }
 
@@ -479,7 +479,7 @@
     display: flex;
     align-self: center;
     backdrop-filter: blur(10px);
-    color: hsl(0 0 100% / 0.45);
+    color: var(--textColor);
     border: 1px solid transparent;
     background: linear-gradient(90deg in oklch,
             hsl(var(--itemHue) 30% 15% / var(--item-opacity)),
