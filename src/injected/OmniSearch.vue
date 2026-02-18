@@ -3,7 +3,7 @@
         <SearchBar v-model="searchQuery" :selectedResult="filteredResults[selectedIndex]"
             :parametersQuery="parametersQuery" @update:parametersQuery="updateParametersQuery"
             @clear:parametersQuery="clearReactive(parametersQuery)" :focusedInput="focusedInput"
-            :currentCommandInAction="currentCommandInAction" />
+            :currentCommandInAction="currentCommandInAction" :currentGroupMode="currentGroupMode" />
         <hr class="separator" />
         <SearchResults :isMathExpression="isMathExpression" :mathExpression="searchQuery"
             :mathExpressionResult="calculatedResult ?? ''" :results="filteredResults"
@@ -25,7 +25,7 @@ import { computed, reactive, ref } from "vue";
 import SearchBar from "./SearchBar/SearchBar.vue";
 import SearchResults from "./Results/SearchResults.vue";
 import SearchStatusBar from "./StatusBar/SearchStatusBar.vue";
-import { ResultType, ViewType, type ChromeTab } from "../utilities/types";
+import { GroupType, ResultType, ViewType, type ChromeTab } from "../utilities/types";
 import { clearReactive } from "../utilities/helpers";
 import { useChromeSyncStorage, useKeyboardHandler, useMathExpressions, useOmniSearch } from "../composables";
 
@@ -36,7 +36,7 @@ const searchQuery = ref('');
 const parametersQuery = reactive<Record<string, string>>({});
 const focusedInput = ref(0);
 const currentView = ref<ViewType>(ViewType.Default);
-
+const currentGroupMode = ref<GroupType>(GroupType.Tabs);
 
 const selectKeyText = computed(() => {
     if (isMathExpression.value) return 'Copy answer';
@@ -60,7 +60,8 @@ const { handler } = useKeyboardHandler({
     isMathExpression,
     calculatedResult,
     parametersQuery,
-    currentView
+    currentView,
+    currentGroupMode
 });
 
 const updateParametersQuery = (key: string, value: string) => {

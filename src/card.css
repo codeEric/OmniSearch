@@ -213,6 +213,13 @@
     top: auto;
 }
 
+.searchbar-container {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    gap: 0.5em;
+}
+
 .searchbar {
     display: flex;
     align-items: center;
@@ -230,6 +237,7 @@
     font-weight: 300;
     font-family: 'Asap', sans-serif;
     color: hsl(0 0 100% / 0.5);
+    width: 100%;
 }
 
 .searchbar:focus-within {
@@ -276,6 +284,18 @@
     border-color: hsl(var(--topHue) 20% 70% / 0.5);
     background-position: 0% 50%;
     color: hsl(var(--topHue) 20% 80% / 1);
+}
+
+.searchbar-group-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.searchbar-group-container svg,
+.searchbar-group-container path,
+.searchbar-group-container rect {
+    stroke: hsl(var(--topHue) 35% 55%);
 }
 
 .card-item {

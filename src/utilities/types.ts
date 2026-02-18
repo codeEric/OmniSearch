@@ -156,3 +156,10 @@ export type TabFilterMessage = {
     command: TabFilterCommand;
     tabId?: number;
 };
+
+export enum GroupType {
+    Tabs = "Tabs",
+    TabGroups = "TabGroups",
+    Bookmarks = "Bookmarks",
+    Mappings = "Mappings",
+}

@@ -22,3 +22,6 @@ export { default as CloseIcon } from "./CloseIcon.vue";
 export { default as ChevronDown } from "./ChevronDown.vue";
 export { default as ChevronUp } from "./ChevronUp.vue";
 export { default as FolderIcon } from "./FolderIcon.vue";
+export { default as BookmarkIcon } from "./BookmarkIcon.vue";
+export { default as TabsIcon } from "./TabsIcon.vue";
+export { default as MappingIcon } from "./MappingIcon.vue";

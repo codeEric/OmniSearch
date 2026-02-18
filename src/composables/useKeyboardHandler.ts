@@ -1,6 +1,7 @@
 import { clearReactive } from "@/utilities/helpers";
 import { isChromeTabGroup } from "@/utilities/typeGuards";
 import {
+    GroupType,
     PredefinedCommandType,
     ResultType,
     ViewType,
@@ -19,6 +20,7 @@ interface HandlerDeps {
     calculatedResult: ComputedRef<number | string | null>;
     parametersQuery: Record<string, string>;
     currentView: Ref<ViewType>;
+    currentGroupMode: Ref<GroupType>;
 }
 
 export const useKeyboardHandler = (deps: HandlerDeps) => {
@@ -167,6 +169,15 @@ export const useKeyboardHandler = (deps: HandlerDeps) => {
                     selectedResult.type === ResultType.PredefinedCommand
                 ) {
                     focusedInput.value = (focusedInput.value + 1) % 2;
+                } else {
+                    const options = Object.values(GroupType) as GroupType[];
+                    const currentIndex = options.indexOf(
+                        deps.currentGroupMode.value,
+                    );
+
+                    const nextIndex = (currentIndex + 1) % options.length;
+
+                    deps.currentGroupMode.value = options[nextIndex];
                 }
                 break;
         }
