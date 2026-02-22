@@ -4,7 +4,6 @@
             <div class="card-item-left">
                 <component v-if="result?.url && result.url.includes('chrome://')" :is="getChromeIcon(result.url)" />
                 <img v-else-if="result?.icon" :src="result.icon" class="card-item-favicon" />
-                <FolderIcon v-else-if="result.type === ResultType.TabGroup" :color="result.color" :size="24" />
                 <span class="card-item-text">
                     {{ result?.title }}
                 </span>

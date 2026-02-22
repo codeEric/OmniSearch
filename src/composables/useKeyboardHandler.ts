@@ -6,8 +6,6 @@ import {
     type CommandResult,
     type FlattenedResult,
     type Result,
-    type TabGroupResult,
-    type TabResult,
 } from "@/utilities/types";
 import { buildCommandUrl } from "@/utilities/urlHelpers";
 import {
@@ -40,36 +38,12 @@ export const useKeyboardHandler = (deps: HandlerDeps) => {
         calculatedResult,
         parametersQuery,
         currentView,
+        currentGroupMode,
     } = deps;
-
-    const flattenedResults = computed(() => {
-        return filteredResults.value.flatMap(
-            (item: Result): FlattenedResult[] => {
-                if (item.type === ResultType.TabGroup) {
-                    return (
-                        item.tabs?.map((tab: any) => ({
-                            id: tab.id,
-                            type: ResultType.Tab,
-                            tab,
-                            parentGroup: item,
-                        })) || []
-                    );
-                } else {
-                    return [
-                        {
-                            ...item,
-                        },
-                    ];
-                }
-            },
-        );
-    });
 
     const handler = (e: KeyboardEvent) => {
         e.stopImmediatePropagation();
-        const selectedResult = flattenedResults.value[
-            selectedIndex.value
-        ] as unknown as Result;
+        const selectedResult = filteredResults.value[selectedIndex.value];
         switch (e.key) {
             case "Backspace":
                 handleBackspaceKey(e);
@@ -121,18 +95,18 @@ export const useKeyboardHandler = (deps: HandlerDeps) => {
     };
 
     const handleArrowKeyDown = () => {
-        if (!flattenedResults.value.length) return;
+        if (!filteredResults.value.length) return;
         selectedIndex.value =
-            selectedIndex.value >= flattenedResults.value.length - 1
+            selectedIndex.value >= filteredResults.value.length - 1
                 ? 0
                 : selectedIndex.value + 1;
     };
 
     const handleArrowKeyUp = () => {
-        if (!flattenedResults.value.length) return;
+        if (!filteredResults.value.length) return;
         selectedIndex.value =
             selectedIndex.value <= 0
-                ? flattenedResults.value.length - 1
+                ? filteredResults.value.length - 1
                 : selectedIndex.value - 1;
     };
 
@@ -180,10 +154,10 @@ export const useKeyboardHandler = (deps: HandlerDeps) => {
                     1);
         } else {
             const options = Object.values(GroupType) as GroupType[];
-            const currentIndex = options.indexOf(deps.currentGroupMode.value);
+            const currentIndex = options.indexOf(currentGroupMode.value);
 
             const nextIndex = (currentIndex + 1) % options.length;
-            deps.currentGroupMode.value = options[nextIndex];
+            currentGroupMode.value = options[nextIndex];
             selectedIndex.value = 0;
         }
     };

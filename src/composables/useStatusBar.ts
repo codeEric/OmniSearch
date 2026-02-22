@@ -20,12 +20,7 @@ export function useStatusBar(
     });
 
     const selectKeyModText = computed(() => {
-        // if (
-        //     filteredResults.value?.length > 0 &&
-        //     selectedIndex.value > -1 &&
-        //     filteredResults.value[selectedIndex.value].type === "Command"
-        // )
-        //     return "Open in new Tab";
+        // if()
         return null;
     });
 

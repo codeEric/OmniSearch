@@ -3,37 +3,45 @@ import {
     ResultType,
     type ChromeBookmark,
     type ChromeTabGroup,
+    type ChromeTabWithGroup,
 } from "@/utilities/types";
 import { ref } from "vue";
 
 export function useTabGroups() {
-    const tabGroups = ref<ChromeTabGroup[]>([]);
+    const tabGroups = ref<ChromeTabWithGroup[]>([]);
 
     const fetchTabGroups = async () => {
         const chromeTabGroups: {
             tabGroups: chrome.tabGroups.TabGroup[];
             tabs: chrome.tabs.Tab[];
         } = await chromeSendMessage("GET_TAB_GROUPS");
-        const mappedTabGroups: ChromeTabGroup[] | undefined =
-            chromeTabGroups.tabGroups?.map(
-                (tabGroup) =>
-                    ({
-                        id: tabGroup.id.toString(),
-                        title: tabGroup.title ?? "Untitle",
-                        color: getHexFromColorName(tabGroup.color),
-                        tabs: chromeTabGroups.tabs
-                            .filter((tab) => tab.groupId === tabGroup.id)
-                            .map((tab) => ({
-                                id: tab.id?.toString() ?? crypto.randomUUID(),
-                                title: tab?.title ?? "Untitled",
-                                favIconUrl: `https://www.google.com/s2/favicons?domain=${new URL(tab.url ?? "").hostname}&sz=128`,
-                                url: tab.url,
-                            })),
-                    }) satisfies ChromeTabGroup,
-            );
 
-        tabGroups.value = mappedTabGroups ?? [];
+        const mappedTabs = chromeTabGroups.tabs.map((tab) => {
+            const group = chromeTabGroups.tabGroups.find(
+                (g) => g.id === tab.groupId,
+            );
+            return {
+                id: tab.id?.toString() ?? crypto.randomUUID(),
+                title: tab.title ?? "Untitled",
+                favIconUrl: tab.url
+                    ? `https://www.google.com/s2/favicons?domain=${
+                          new URL(tab.url).hostname
+                      }&sz=128`
+                    : "",
+                url: tab.url,
+                group: group
+                    ? {
+                          id: group.id.toString(),
+                          title: group.title ?? "Untitled",
+                          color: getHexFromColorName(group.color),
+                      }
+                    : undefined,
+            };
+        });
+
+        tabGroups.value = mappedTabs;
     };
+
     return {
         tabGroups,
         fetchTabGroups,

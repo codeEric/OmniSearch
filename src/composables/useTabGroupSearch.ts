@@ -1,55 +1,70 @@
-import { computed, ref, type Ref } from "vue";
+import { computed, ref, type Ref, watch } from "vue";
 import {
     ResultType,
     type Result,
+    type ChromeTabWithGroup,
+    type TabGroupResult,
     type ChromeTabGroup,
 } from "@/utilities/types";
 
 export function useTabGroupSearch(
-    tabGroups: Ref<ChromeTabGroup[]>,
+    tabs: Ref<ChromeTabWithGroup[]>,
     searchQuery: Ref<string>,
 ) {
     const selectedIndex = ref(0);
 
-    const filteredResults = computed<Result[]>(() => {
+    watch(searchQuery, () => {
         selectedIndex.value = 0;
+    });
 
+    const filteredResults = computed<Result[]>(() => {
         const query = searchQuery.value.trim().toLowerCase();
 
         if (!query) {
-            return tabGroups.value.slice(0, 6).map(mapGroupToResult);
+            return tabs.value
+                .filter((tab) => tab.group)
+                .map((tab) => ({
+                    id: tab.id ?? crypto.randomUUID(),
+                    title: tab.title ?? "Untitled",
+                    icon: tab.favIconUrl,
+                    url: tab.url,
+                    type: ResultType.TabGroup,
+                    group: tab.group!,
+                }));
         }
 
         const results: Result[] = [];
+        const addedGroupIds = new Set<string>();
 
-        for (const group of tabGroups.value) {
-            const groupTitle = group.title?.toLowerCase() ?? "";
+        for (const tab of tabs.value) {
+            const tabTitle = tab.title?.toLowerCase() ?? "";
+            const tabUrl = tab.url?.toLowerCase() ?? "";
+            const groupTitle = tab.group?.title?.toLowerCase() ?? "";
 
-            if (groupTitle.includes(query)) {
-                results.push(mapGroupToResult(group));
+            if (
+                tab.group &&
+                groupTitle.includes(query) &&
+                !addedGroupIds.has(tab.group.id)
+            ) {
+                results.push({
+                    id: tab.id ?? crypto.randomUUID(),
+                    title: tab.title ?? "Untitled",
+                    icon: tab.favIconUrl,
+                    url: tab.url,
+                    type: ResultType.TabGroup,
+                    group: tab.group,
+                });
+
+                addedGroupIds.add(tab.group.id);
                 continue;
             }
 
-            const matchingTabs = group.tabs.filter((tab) => {
-                const tabTitle = tab.title?.toLowerCase() ?? "";
-                const tabUrl = tab.url?.toLowerCase() ?? "";
-
-                return tabTitle.includes(query) || tabUrl.includes(query);
-            });
-
-            if (matchingTabs.length > 0) {
+            if (tabTitle.includes(query) || tabUrl.includes(query)) {
                 results.push({
-                    id: group.id,
-                    title: group.title,
-                    type: ResultType.TabGroup,
-                    color: group.color,
-                    tabs: matchingTabs.map((tab) => ({
-                        id: tab.id ?? crypto.randomUUID(),
-                        title: tab.title ?? "Untitled",
-                        icon: tab.favIconUrl,
-                        url: tab.url,
-                        type: ResultType.Tab,
-                    })),
+                    id: tab.id ?? crypto.randomUUID(),
+                    title: tab.title ?? "Untitled",
+                    type: ResultType.Tab,
+                    ...tab,
                 });
             }
         }
@@ -63,18 +78,11 @@ export function useTabGroupSearch(
     };
 }
 
-function mapGroupToResult(group: ChromeTabGroup): Result {
+function mapGroupToResult(group: ChromeTabGroup): TabGroupResult {
     return {
         id: group.id,
         title: group.title,
         type: ResultType.TabGroup,
-        color: group.color,
-        tabs: group.tabs.map((tab) => ({
-            id: tab.id ?? crypto.randomUUID(),
-            title: tab.title ?? "Untitled",
-            icon: tab.favIconUrl,
-            url: tab.url,
-            type: ResultType.Tab,
-        })),
+        group: group,
     };
 }

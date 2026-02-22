@@ -12,7 +12,7 @@
                 {{ selectKey }}
             </span>
 
-            <span class="statusbar-keybind">
+            <span class="statusbar-keybind" v-if="showModKey">
 
                 <KeyCard v-if="showCommandKey()" keyName="⌘" textClass="statusbar-card-text command-key" />
                 <KeyCard v-else keyName="Esc" textClass="statusbar-card-text" />
@@ -47,6 +47,10 @@ defineProps({
     escapeKey: {
         type: String,
         default: "Close"
+    },
+    showModKey: {
+        type: Boolean,
+        default: false
     }
 });
 

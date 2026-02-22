@@ -64,8 +64,7 @@ export type BookmarkResult = Omit<BaseResult, "type"> & {
 
 export type TabGroupResult = Omit<BaseResult, "type"> & {
     type: ResultType.TabGroup;
-    color: string;
-    tabs?: TabResult[];
+    group: ChromeTabGroup;
 };
 
 export type SearchResult = Omit<BaseResult, "type"> & {
@@ -120,7 +119,10 @@ export type ChromeTabGroup = {
     id: string;
     title: string;
     color: string;
-    tabs: ChromeTab[];
+};
+
+export type ChromeTabWithGroup = ChromeTab & {
+    group?: ChromeTabGroup;
 };
 
 export type TabFilterCommand = "HIDE_OMNI_SEARCH" | "OPEN_SELECTED_TAB";

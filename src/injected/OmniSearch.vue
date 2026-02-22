@@ -17,7 +17,7 @@
     </template>
     <hr class="separator" />
     <SearchStatusBar :selectKey="selectKeyText" :selectKeyMod="selectKeyModText ?? selectKeyText"
-        :escapeKey="escapeKeyText" />
+        :escapeKey="escapeKeyText" :showModKey="filteredResults[selectedIndex].type === ResultType.Bookmark" />
 </template>
 
 <script setup lang="ts">
@@ -25,7 +25,7 @@ import { computed, reactive, ref, toRef, watch } from "vue";
 import SearchBar from "./SearchBar/SearchBar.vue";
 import SearchResults from "./Results/SearchResults.vue";
 import SearchStatusBar from "./StatusBar/SearchStatusBar.vue";
-import { GroupType, ViewType, type ChromeBookmark, type ChromeTab, type Result } from "../utilities/types";
+import { GroupType, ResultType, ViewType, type ChromeTab } from "../utilities/types";
 import { clearReactive } from "../utilities/helpers";
 import { useBookmarks, useBookmarkSearch, useChromeSyncStorage, useKeyboardHandler, useMathExpressions, useOmniSearch, useStatusBar, useTabGroups, useTabGroupSearch, useTabSearch } from "../composables";
 
@@ -69,7 +69,7 @@ const filteredResults = computed(() => {
         default:
             return [];
     }
-})
+});
 
 
 useKeyboardHandler({
