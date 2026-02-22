@@ -4,16 +4,25 @@ import {
     ResultType,
     ViewType,
     type CommandResult,
+    type FlattenedResult,
     type Result,
+    type TabGroupResult,
+    type TabResult,
 } from "@/utilities/types";
 import { buildCommandUrl } from "@/utilities/urlHelpers";
-import { onMounted, onUnmounted, type ComputedRef, type Ref } from "vue";
+import {
+    computed,
+    onMounted,
+    onUnmounted,
+    type ComputedRef,
+    type Ref,
+} from "vue";
 
 interface HandlerDeps {
     focusedInput: Ref<number>;
     searchQuery: Ref<string>;
     selectedIndex: Ref<number>;
-    filteredResults: Ref<Result[]>;
+    filteredResults: ComputedRef<Result[]>;
     isMathExpression: Ref<boolean>;
     calculatedResult: ComputedRef<number | string | null>;
     parametersQuery: Record<string, string>;
@@ -33,9 +42,34 @@ export const useKeyboardHandler = (deps: HandlerDeps) => {
         currentView,
     } = deps;
 
+    const flattenedResults = computed(() => {
+        return filteredResults.value.flatMap(
+            (item: Result): FlattenedResult[] => {
+                if (item.type === ResultType.TabGroup) {
+                    return (
+                        item.tabs?.map((tab: any) => ({
+                            id: tab.id,
+                            type: ResultType.Tab,
+                            tab,
+                            parentGroup: item,
+                        })) || []
+                    );
+                } else {
+                    return [
+                        {
+                            ...item,
+                        },
+                    ];
+                }
+            },
+        );
+    });
+
     const handler = (e: KeyboardEvent) => {
         e.stopImmediatePropagation();
-        const selectedResult = filteredResults.value[selectedIndex.value];
+        const selectedResult = flattenedResults.value[
+            selectedIndex.value
+        ] as unknown as Result;
         switch (e.key) {
             case "Backspace":
                 handleBackspaceKey(e);
@@ -79,7 +113,7 @@ export const useKeyboardHandler = (deps: HandlerDeps) => {
             return;
         }
         if (!searchQuery.value) {
-            postWindowMessage("FROM_TAB_FILTEr", "HIDE_OMNI_SEARCH");
+            postWindowMessage("FROM_TAB_FILTER", "HIDE_OMNI_SEARCH");
         } else {
             searchQuery.value = "";
             clearReactive(parametersQuery);
@@ -87,31 +121,19 @@ export const useKeyboardHandler = (deps: HandlerDeps) => {
     };
 
     const handleArrowKeyDown = () => {
-        if (!isMathExpression.value) {
-            selectedIndex.value =
-                selectedIndex.value >= filteredResults.value.length - 1
-                    ? 0
-                    : selectedIndex.value + 1;
-        } else {
-            selectedIndex.value =
-                selectedIndex.value >= filteredResults.value.length
-                    ? 0
-                    : selectedIndex.value + 1;
-        }
+        if (!flattenedResults.value.length) return;
+        selectedIndex.value =
+            selectedIndex.value >= flattenedResults.value.length - 1
+                ? 0
+                : selectedIndex.value + 1;
     };
 
     const handleArrowKeyUp = () => {
-        if (!isMathExpression.value) {
-            selectedIndex.value =
-                selectedIndex.value <= 0
-                    ? filteredResults.value.length - 1
-                    : selectedIndex.value - 1;
-        } else {
-            selectedIndex.value =
-                selectedIndex.value <= 0
-                    ? filteredResults.value.length
-                    : selectedIndex.value - 1;
-        }
+        if (!flattenedResults.value.length) return;
+        selectedIndex.value =
+            selectedIndex.value <= 0
+                ? flattenedResults.value.length - 1
+                : selectedIndex.value - 1;
     };
 
     const handleEnterKey = (selectedResult: Result) => {
@@ -119,16 +141,16 @@ export const useKeyboardHandler = (deps: HandlerDeps) => {
             navigator.clipboard.writeText(
                 calculatedResult.value as unknown as string,
             );
-            postWindowMessage("FROM_TAB_FILTEr", "HIDE_OMNI_SEARCH");
+            postWindowMessage("FROM_TAB_FILTER", "HIDE_OMNI_SEARCH");
         }
-
+        console.log(selectedResult);
         switch (selectedResult.type) {
             case ResultType.Tab:
                 postWindowMessage(
                     "FROM_TAB_FILTER",
                     "OPEN_SELECTED_TAB",
                     "tabId",
-                    selectedResult.id,
+                    Number(selectedResult.id),
                 );
                 break;
             case ResultType.Command:
@@ -141,6 +163,8 @@ export const useKeyboardHandler = (deps: HandlerDeps) => {
                 clearReactive(parametersQuery);
                 break;
             case ResultType.Search:
+            case ResultType.Bookmark:
+                console.log(selectedResult);
                 window.open(selectedResult.url);
                 break;
         }
@@ -148,7 +172,7 @@ export const useKeyboardHandler = (deps: HandlerDeps) => {
 
     const handleTabKey = (e: Event, selectedResult: Result) => {
         e.preventDefault();
-        if (selectedResult.type === ResultType.Command) {
+        if (selectedResult && selectedResult.type === ResultType.Command) {
             focusedInput.value =
                 (focusedInput.value + 1) %
                 ((filteredResults.value[selectedIndex.value] as CommandResult)
@@ -159,8 +183,8 @@ export const useKeyboardHandler = (deps: HandlerDeps) => {
             const currentIndex = options.indexOf(deps.currentGroupMode.value);
 
             const nextIndex = (currentIndex + 1) % options.length;
-
             deps.currentGroupMode.value = options[nextIndex];
+            selectedIndex.value = 0;
         }
     };
 

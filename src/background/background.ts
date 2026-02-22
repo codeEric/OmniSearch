@@ -11,7 +11,7 @@ storage.init();
 const openOmniSearch = async () => {
     const tabs = (await chrome.tabs.query({ currentWindow: true })).map(
         (tab) => ({
-            id: tab.id,
+            id: tab.id?.toString(),
             url: tab.url,
             title: tab.title,
             favIconUrl: tab.favIconUrl,
@@ -22,7 +22,7 @@ const openOmniSearch = async () => {
     if (tab && tab.id) {
         try {
             showOmniSearch = !showOmniSearch;
-            await chrome.tabs.sendMessage(tab.id, {
+            await chrome.tabs.sendMessage(Number(tab.id), {
                 command: showOmniSearch
                     ? "SHOW_OMNI_SEARCH"
                     : "HIDE_OMNI_SEARCH",
@@ -70,7 +70,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     }
     if (message.command === "GET_TAB_GROUPS") {
         chrome.tabGroups.query({}, (groups) => {
-            sendResponse(groups);
+            groups.forEach((group) => {
+                chrome.tabs.query({ groupId: group.id }, (tabs) => {
+                    sendResponse({ tabGroups: groups, tabs: tabs });
+                });
+            });
         });
 
         return true;

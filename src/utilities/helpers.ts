@@ -64,15 +64,20 @@ export const getHexFromColorName = (
     return colorMap[colorName] || "#000000";
 };
 
-export const chromeSendMessage = (
+export const chromeSendMessage = async (
     command: string,
-    dataKey: string,
-    data: unknown,
+    dataKey?: string,
+    data?: unknown,
 ) => {
-    chrome.runtime.sendMessage({
-        command: command,
-        [dataKey]: data,
-    });
+    const payload: { command: string; [key: string]: unknown } = {
+        command,
+    };
+
+    if (dataKey) {
+        payload[dataKey] = data;
+    }
+
+    return chrome.runtime.sendMessage(payload);
 };
 
 export const postWindowMessage = (

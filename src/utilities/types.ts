@@ -2,8 +2,8 @@ type BaseResult = {
     id: string;
     title: string;
     type: ResultType;
-    icon: string;
-    url: string;
+    icon?: string;
+    url?: string;
 };
 
 export type ResultParameter = {
@@ -48,12 +48,24 @@ export type ColorSchemeHues = {
 
 export enum ResultType {
     Tab = "Tab",
+    Bookmark = "Bookmark",
     Search = "Search",
     Command = "Command",
+    TabGroup = "TabGroup",
 }
 
 export type TabResult = Omit<BaseResult, "type"> & {
     type: ResultType.Tab;
+};
+
+export type BookmarkResult = Omit<BaseResult, "type"> & {
+    type: ResultType.Bookmark;
+};
+
+export type TabGroupResult = Omit<BaseResult, "type"> & {
+    type: ResultType.TabGroup;
+    color: string;
+    tabs?: TabResult[];
 };
 
 export type SearchResult = Omit<BaseResult, "type"> & {
@@ -65,7 +77,12 @@ export type CommandResult = Omit<BaseResult, "type"> & {
     parameters: ResultParameter[];
 };
 
-export type Result = TabResult | SearchResult | CommandResult;
+export type Result =
+    | TabResult
+    | BookmarkResult
+    | TabGroupResult
+    | SearchResult
+    | CommandResult;
 
 export type UserPreferences = {
     enabled: boolean;
@@ -84,11 +101,26 @@ export type Mapping = {
 };
 
 export type ChromeTab = {
-    id?: number;
+    id?: string;
     url?: string;
     title?: string;
     favIconUrl?: string;
     active?: boolean;
+};
+
+export type ChromeBookmark = {
+    id: string;
+    title: string;
+    type: ResultType;
+    icon: string;
+    url: string;
+};
+
+export type ChromeTabGroup = {
+    id: string;
+    title: string;
+    color: string;
+    tabs: ChromeTab[];
 };
 
 export type TabFilterCommand = "HIDE_OMNI_SEARCH" | "OPEN_SELECTED_TAB";
@@ -101,6 +133,15 @@ export type TabFilterMessage = {
 
 export enum GroupType {
     Tabs = "Tabs",
-    TabGroups = "TabGroups",
     Bookmarks = "Bookmarks",
+    TabGroups = "TabGroups",
 }
+
+export type FlattenedResult =
+    | {
+          id: string;
+          type: ResultType.Tab;
+          tab: TabResult;
+          parentGroup: TabGroupResult;
+      }
+    | Result;

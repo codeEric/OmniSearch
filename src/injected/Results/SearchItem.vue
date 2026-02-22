@@ -1,18 +1,26 @@
 <template>
     <div class="card-item" :class="{ 'selected': selectedResult }">
         <div class="card-item-content">
-            <component v-if="result?.url && result.url.includes('chrome://')" :is="getChromeIcon(result.url)" />
-            <img v-else-if="result?.icon" :src="result.icon" class="card-item-favicon" />
-            <span class="card-item-text">
-                {{ result?.title }}
-            </span>
+            <div class="card-item-left">
+                <component v-if="result?.url && result.url.includes('chrome://')" :is="getChromeIcon(result.url)" />
+                <img v-else-if="result?.icon" :src="result.icon" class="card-item-favicon" />
+                <FolderIcon v-else-if="result.type === ResultType.TabGroup" :color="result.color" :size="24" />
+                <span class="card-item-text">
+                    {{ result?.title }}
+                </span>
+            </div>
+            <div class="card-item-right">
+                <span class="card-item-type-card">
+                    {{ result.type }}
+                </span>
+            </div>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import { type Result } from '../../utilities/types';
-import { ChromeGlobeIcon, ChromeAppsIcon, ChromeStarIcon, ChromeDownloadsIcon, ChromePuzzleIcon, ChromeFlaskIcon, ChromeChromeIcon, ChromeHistoryIcon, ChromeSettingsIcon } from '../../components/icons';
+import { ResultType, type Result } from '../../utilities/types';
+import { ChromeGlobeIcon, ChromeAppsIcon, ChromeStarIcon, ChromeDownloadsIcon, ChromePuzzleIcon, ChromeFlaskIcon, ChromeChromeIcon, ChromeHistoryIcon, ChromeSettingsIcon, FolderIcon } from '../../components/icons';
 
 const props = defineProps<{
     result: Result,
