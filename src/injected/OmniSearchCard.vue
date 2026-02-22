@@ -1,6 +1,6 @@
 <template>
     <div class="card-outer">
-        <div class="card" :class="useMode">
+        <div class="card">
             <span class="shine shine-top" v-if="userPreferences.shineEffect"></span>
             <span class="shine shine-bottom" v-if="userPreferences.shineEffect"></span>
             <span class="glow glow-top" :class="useMode" v-if="userPreferences.glowEffect"></span>
