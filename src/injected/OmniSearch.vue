@@ -17,7 +17,7 @@
     </template>
     <hr class="separator" />
     <SearchStatusBar :selectKey="selectKeyText" :selectKeyMod="selectKeyModText ?? selectKeyText"
-        :escapeKey="escapeKeyText" :showModKey="filteredResults[selectedIndex]?.type === ResultType.Bookmark" />
+        :escapeKey="escapeKeyText" :showModKey="filteredResults[selectedIndex]?.type !== ResultType.Tab" />
 </template>
 
 <script setup lang="ts">

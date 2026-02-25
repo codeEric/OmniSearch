@@ -63,7 +63,7 @@ export const useKeyboardHandler = (deps: HandlerDeps) => {
                 handleArrowKeyUp();
                 break;
             case "Enter":
-                handleEnterKey(selectedResult);
+                handleEnterKey(e, selectedResult);
                 break;
             case "Tab":
                 handleTabKey(e, selectedResult);
@@ -115,7 +115,7 @@ export const useKeyboardHandler = (deps: HandlerDeps) => {
                 : selectedIndex.value - 1;
     };
 
-    const handleEnterKey = (selectedResult: Result) => {
+    const handleEnterKey = (e: KeyboardEvent, selectedResult: Result) => {
         if (isMathExpression.value && calculatedResult.value) {
             navigator.clipboard.writeText(
                 calculatedResult.value as unknown as string,
@@ -132,18 +132,25 @@ export const useKeyboardHandler = (deps: HandlerDeps) => {
                 );
                 break;
             case ResultType.Command:
-                window.open(
-                    buildCommandUrl(
-                        selectedResult as CommandResult,
-                        parametersQuery,
-                    ),
+                const builtUrl = buildCommandUrl(
+                    selectedResult as CommandResult,
+                    parametersQuery,
                 );
+                if (e.metaKey) {
+                    window.open(builtUrl, "_blank");
+                } else {
+                    window.location.assign(builtUrl);
+                }
                 clearReactive(parametersQuery);
                 break;
             case ResultType.Search:
             case ResultType.History:
             case ResultType.Bookmark:
-                window.open(selectedResult.url);
+                if (e.metaKey) {
+                    window.open(selectedResult.url, "_blank");
+                } else {
+                    window.location.assign(selectedResult.url ?? "");
+                }
                 break;
         }
     };

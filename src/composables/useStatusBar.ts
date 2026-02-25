@@ -1,4 +1,4 @@
-import { ViewType } from "@/utilities/types";
+import { ResultType, ViewType } from "@/utilities/types";
 import { computed } from "vue";
 import type { Ref } from "vue";
 
@@ -9,18 +9,48 @@ export function useStatusBar(
     currentView: Ref<ViewType>,
 ) {
     const selectKeyText = computed(() => {
-        if (isMathExpression.value) return "Copy answer";
-        // else if (
-        //     filteredResults.value?.length > 0 &&
-        //     selectedIndex.value > -1 &&
-        //     filteredResults.value[selectedIndex.value].type === "Command"
-        // )
-        //     return "Open";
+        if (isMathExpression.value) {
+            return "Copy answer";
+        }
+
+        const item = filteredResults.value?.[selectedIndex.value];
+
+        if (!item) {
+            return "Select";
+        }
+
+        const openTypes = [
+            ResultType.History,
+            ResultType.Search,
+            ResultType.Bookmark,
+            ResultType.Command,
+        ];
+
+        if (openTypes.includes(item.type)) {
+            return "Open";
+        }
+
         return "Select";
     });
 
     const selectKeyModText = computed(() => {
-        // if()
+        const item = filteredResults.value?.[selectedIndex.value];
+
+        if (!item) {
+            return null;
+        }
+
+        const openTypes = [
+            ResultType.History,
+            ResultType.Search,
+            ResultType.Bookmark,
+            ResultType.Command,
+        ];
+
+        if (openTypes.includes(item.type)) {
+            return "Open in a new tab";
+        }
+
         return null;
     });
 
