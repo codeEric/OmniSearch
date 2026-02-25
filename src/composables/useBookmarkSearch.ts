@@ -3,6 +3,7 @@ import {
     ResultType,
     type Result,
     type ChromeBookmark,
+    type BookmarkResult,
 } from "@/utilities/types";
 
 export function useBookmarkSearch(
@@ -11,7 +12,7 @@ export function useBookmarkSearch(
 ) {
     const selectedIndex = ref(0);
 
-    const filteredResults = computed<Result[]>(() => {
+    const filteredBookmarks = computed<BookmarkResult[]>(() => {
         selectedIndex.value = 0;
 
         const query = searchQuery.value.toLowerCase();
@@ -34,7 +35,6 @@ export function useBookmarkSearch(
     });
 
     return {
-        filteredResults,
-        selectedIndex,
+        filteredBookmarks,
     };
 }

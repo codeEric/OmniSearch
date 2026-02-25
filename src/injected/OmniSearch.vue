@@ -17,17 +17,17 @@
     </template>
     <hr class="separator" />
     <SearchStatusBar :selectKey="selectKeyText" :selectKeyMod="selectKeyModText ?? selectKeyText"
-        :escapeKey="escapeKeyText" :showModKey="filteredResults[selectedIndex].type === ResultType.Bookmark" />
+        :escapeKey="escapeKeyText" :showModKey="filteredResults[selectedIndex]?.type === ResultType.Bookmark" />
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref, toRef, watch } from "vue";
+import { computed, onMounted, reactive, ref, toRef, watch } from "vue";
 import SearchBar from "./SearchBar/SearchBar.vue";
 import SearchResults from "./Results/SearchResults.vue";
 import SearchStatusBar from "./StatusBar/SearchStatusBar.vue";
-import { GroupType, ResultType, ViewType, type ChromeTab } from "../utilities/types";
+import { GroupType, ResultType, ViewType, type ChromeTab, type Result } from "../utilities/types";
 import { clearReactive } from "../utilities/helpers";
-import { useBookmarks, useBookmarkSearch, useChromeSyncStorage, useKeyboardHandler, useMathExpressions, useOmniSearch, useStatusBar, useTabGroups, useTabGroupSearch, useTabSearch } from "../composables";
+import { useBookmarks, useBookmarkSearch, useChromeSyncStorage, useHistoryItemsSearch, useKeyboardHandler, useMathExpressions, useOmniSearch, useStatusBar, useTabGroups, useTabGroupSearch, useTabSearch } from "../composables";
 
 const props = defineProps<{
     tabs: ChromeTab[]
@@ -41,12 +41,17 @@ const currentGroupMode = ref<GroupType>(GroupType.Tabs);
 
 const { isMathExpression, calculatedResult } = useMathExpressions(searchQuery);
 const { mappings } = useChromeSyncStorage();
-const { selectedIndex } = useOmniSearch(computed(() => props.tabs), mappings, searchQuery);
 const { bookmarks, fetchBookmarks } = useBookmarks();
 const { tabGroups, fetchTabGroups } = useTabGroups();
-const bookmarksSearch = useBookmarkSearch(bookmarks, searchQuery);
-const tabsSearch = useTabSearch(toRef(props, 'tabs'), searchQuery);
-const tabGroupSearch = useTabGroupSearch(tabGroups, searchQuery);
+const { filteredBookmarks } = useBookmarkSearch(bookmarks, searchQuery);
+const { filteredTabs } = useTabSearch(toRef(props, 'tabs'), searchQuery);
+const { filteredTabGroups } = useTabGroupSearch(tabGroups, searchQuery);
+const { filteredResults, selectedIndex } = useOmniSearch(filteredTabs, filteredBookmarks, filteredTabGroups, mappings, searchQuery, currentGroupMode);
+
+onMounted(() => {
+    fetchBookmarks();
+    fetchTabGroups();
+});
 
 watch(currentGroupMode, (mode) => {
     if (mode === GroupType.Bookmarks) {
@@ -58,19 +63,19 @@ watch(currentGroupMode, (mode) => {
     }
 }, { immediate: true });
 
-const filteredResults = computed(() => {
-    switch (currentGroupMode.value) {
-        case GroupType.Tabs:
-            return tabsSearch.filteredResults.value;
-        case GroupType.Bookmarks:
-            return bookmarksSearch.filteredResults.value
-        case GroupType.TabGroups:
-            return tabGroupSearch.filteredResults.value;
-        default:
-            return [];
-    }
-});
+const availableGroupModes = computed(() => {
+    const groups = [GroupType.Tabs];
 
+    if (bookmarks.value?.length) {
+        groups.push(GroupType.Bookmarks);
+    }
+
+    if (tabGroups.value?.length) {
+        groups.push(GroupType.TabGroups);
+    }
+
+    return groups;
+});
 
 useKeyboardHandler({
     focusedInput,
@@ -81,7 +86,8 @@ useKeyboardHandler({
     calculatedResult,
     parametersQuery,
     currentView,
-    currentGroupMode
+    currentGroupMode,
+    availableGroupModes
 });
 
 const { selectKeyText, selectKeyModText, escapeKeyText } = useStatusBar(filteredResults, selectedIndex, isMathExpression, currentView);

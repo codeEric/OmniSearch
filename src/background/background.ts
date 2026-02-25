@@ -97,6 +97,21 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             });
         });
     }
+
+    if (message.command === "GET_HISTORY") {
+        chrome.history.search(
+            {
+                text: message.query || "",
+                startTime: 0,
+                maxResults: 100,
+            },
+            (result) => {
+                sendResponse(result);
+            },
+        );
+
+        return true;
+    }
 });
 
 chrome.commands.onCommand.addListener((command: string) => {

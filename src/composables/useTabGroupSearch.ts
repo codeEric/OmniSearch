@@ -17,7 +17,7 @@ export function useTabGroupSearch(
         selectedIndex.value = 0;
     });
 
-    const filteredResults = computed<Result[]>(() => {
+    const filteredTabGroups = computed<TabGroupResult[]>(() => {
         const query = searchQuery.value.trim().toLowerCase();
 
         if (!query) {
@@ -33,7 +33,7 @@ export function useTabGroupSearch(
                 }));
         }
 
-        const results: Result[] = [];
+        const results: TabGroupResult[] = [];
         const addedGroupIds = new Set<string>();
 
         for (const tab of tabs.value) {
@@ -63,7 +63,7 @@ export function useTabGroupSearch(
                 results.push({
                     id: tab.id ?? crypto.randomUUID(),
                     title: tab.title ?? "Untitled",
-                    type: ResultType.Tab,
+                    type: ResultType.TabGroup,
                     ...tab,
                 });
             }
@@ -73,16 +73,6 @@ export function useTabGroupSearch(
     });
 
     return {
-        filteredResults,
-        selectedIndex,
-    };
-}
-
-function mapGroupToResult(group: ChromeTabGroup): TabGroupResult {
-    return {
-        id: group.id,
-        title: group.title,
-        type: ResultType.TabGroup,
-        group: group,
+        filteredTabGroups,
     };
 }

@@ -26,6 +26,7 @@ interface HandlerDeps {
     parametersQuery: Record<string, string>;
     currentView: Ref<ViewType>;
     currentGroupMode: Ref<GroupType>;
+    availableGroupModes: ComputedRef<GroupType[]>;
 }
 
 export const useKeyboardHandler = (deps: HandlerDeps) => {
@@ -39,11 +40,15 @@ export const useKeyboardHandler = (deps: HandlerDeps) => {
         parametersQuery,
         currentView,
         currentGroupMode,
+        availableGroupModes,
     } = deps;
 
     const handler = (e: KeyboardEvent) => {
         e.stopImmediatePropagation();
         const selectedResult = filteredResults.value[selectedIndex.value];
+        if (!selectedResult) {
+            return;
+        }
         switch (e.key) {
             case "Backspace":
                 handleBackspaceKey(e);
@@ -117,7 +122,6 @@ export const useKeyboardHandler = (deps: HandlerDeps) => {
             );
             postWindowMessage("FROM_TAB_FILTER", "HIDE_OMNI_SEARCH");
         }
-        console.log(selectedResult);
         switch (selectedResult.type) {
             case ResultType.Tab:
                 postWindowMessage(
@@ -137,8 +141,8 @@ export const useKeyboardHandler = (deps: HandlerDeps) => {
                 clearReactive(parametersQuery);
                 break;
             case ResultType.Search:
+            case ResultType.History:
             case ResultType.Bookmark:
-                console.log(selectedResult);
                 window.open(selectedResult.url);
                 break;
         }
@@ -153,7 +157,7 @@ export const useKeyboardHandler = (deps: HandlerDeps) => {
                     .parameters.length +
                     1);
         } else {
-            const options = Object.values(GroupType) as GroupType[];
+            const options = availableGroupModes.value;
             const currentIndex = options.indexOf(currentGroupMode.value);
 
             const nextIndex = (currentIndex + 1) % options.length;

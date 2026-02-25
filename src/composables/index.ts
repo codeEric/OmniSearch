@@ -1,6 +1,7 @@
 export * from "./useBookmarkSearch";
 export * from "./useBookmarks";
 export * from "./useChromeStorage";
+export * from "./useHistoryItemsSearch";
 export * from "./useKeyboardHandler";
 export * from "./useMathExpressions";
 export * from "./useOmniSearch";

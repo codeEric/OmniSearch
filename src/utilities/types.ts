@@ -52,6 +52,7 @@ export enum ResultType {
     Search = "Search",
     Command = "Command",
     TabGroup = "TabGroup",
+    History = "History",
 }
 
 export type TabResult = Omit<BaseResult, "type"> & {
@@ -64,7 +65,7 @@ export type BookmarkResult = Omit<BaseResult, "type"> & {
 
 export type TabGroupResult = Omit<BaseResult, "type"> & {
     type: ResultType.TabGroup;
-    group: ChromeTabGroup;
+    group?: ChromeTabGroup;
 };
 
 export type SearchResult = Omit<BaseResult, "type"> & {
@@ -76,12 +77,17 @@ export type CommandResult = Omit<BaseResult, "type"> & {
     parameters: ResultParameter[];
 };
 
+export type HistoryResult = Omit<BaseResult, "type"> & {
+    type: ResultType.History;
+};
+
 export type Result =
     | TabResult
     | BookmarkResult
     | TabGroupResult
     | SearchResult
-    | CommandResult;
+    | CommandResult
+    | HistoryResult;
 
 export type UserPreferences = {
     enabled: boolean;

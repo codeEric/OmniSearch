@@ -1,10 +1,15 @@
 import { computed, ref, type Ref } from "vue";
-import { ResultType, type Result, type ChromeTab } from "@/utilities/types";
+import {
+    ResultType,
+    type Result,
+    type ChromeTab,
+    type TabResult,
+} from "@/utilities/types";
 
 export function useTabSearch(tabs: Ref<ChromeTab[]>, searchQuery: Ref<string>) {
     const selectedIndex = ref(0);
 
-    const filteredResults = computed<Result[]>(() => {
+    const filteredTabs = computed<TabResult[]>(() => {
         selectedIndex.value = 0;
 
         const query = searchQuery.value.toLowerCase();
@@ -27,7 +32,6 @@ export function useTabSearch(tabs: Ref<ChromeTab[]>, searchQuery: Ref<string>) {
     });
 
     return {
-        filteredResults,
-        selectedIndex,
+        filteredTabs,
     };
 }

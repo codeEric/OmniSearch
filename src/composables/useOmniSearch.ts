@@ -1,78 +1,74 @@
 import {
+    GroupType,
     ResultType,
+    type BookmarkResult,
     type ChromeTab,
     type Mapping,
     type Result,
+    type TabGroupResult,
+    type TabResult,
 } from "@/utilities/types";
-import { ref, watchEffect, type Ref } from "vue";
+import { computed, ref, watch, type ComputedRef, type Ref } from "vue";
+import { useHistoryItemsSearch } from "./useHistoryItemsSearch";
 
 export function useOmniSearch(
-    tabs: Ref<ChromeTab[]>,
+    filteredTabs: ComputedRef<TabResult[]>,
+    filteredBookmarks: ComputedRef<BookmarkResult[]>,
+    filteredTabGroups: ComputedRef<TabGroupResult[]>,
     mappings: Ref<Mapping[]>,
     searchQuery: Ref<string>,
+    currentGroupMode: Ref<GroupType>,
 ) {
     const selectedIndex = ref(0);
-    const filteredResults = ref<Result[]>([]);
 
-    watchEffect(async () => {
-        selectedIndex.value = 0;
+    const { historyItems, fetchHistoryItems } =
+        useHistoryItemsSearch(searchQuery);
 
-        const query = searchQuery.value.toLowerCase();
-        let chromeTabs: ChromeTab[] = [];
-        let additionalTabs: Result[] = [];
+    const filteredResults = computed<Result[]>(() => {
+        switch (currentGroupMode.value) {
+            case GroupType.Tabs:
+                const results = [
+                    ...filteredTabs.value,
+                    ...historyItems.value,
+                ] as Result[];
 
-        if (query) {
-            chromeTabs = tabs.value
-                .filter(
-                    (tab) =>
-                        tab.title?.toLowerCase().includes(query) ||
-                        tab.url?.toLowerCase().includes(query),
-                )
-                .slice(0, 6);
+                if (searchQuery.value) {
+                    results.push(getGoogleSearch(searchQuery.value));
+                }
 
-            additionalTabs = handleCommands(query);
-        } else {
-            chromeTabs = tabs.value.slice(0, 6);
-        }
-
-        const mappedChromeTabs = chromeTabs.map((tab) => ({
-            id: tab?.id || crypto.randomUUID(),
-            title: tab?.title || "Untitled",
-            type: ResultType.Tab,
-            icon: tab?.favIconUrl,
-            url: tab?.url,
-        })) as Result[];
-
-        const combinedResults = [...mappedChromeTabs, ...additionalTabs];
-
-        if (query) {
-            const firstFiveResults = combinedResults.slice(0, 5);
-            const googleSearchResult: Result = {
-                id: crypto.randomUUID(),
-                title: `Search Google for ${query}`,
-                type: ResultType.Search,
-                icon: "https://www.google.com/s2/favicons?domain=google.com&sz=128",
-                url: `https://www.google.com/search?q=${query}`,
-            };
-            filteredResults.value = [...firstFiveResults, googleSearchResult];
-        } else {
-            filteredResults.value = combinedResults;
+                return results;
+            case GroupType.Bookmarks:
+                return filteredBookmarks.value;
+            case GroupType.TabGroups:
+                return filteredTabGroups.value;
+            default:
+                return [];
         }
     });
 
-    const handleCommands = (query: string): Result[] => {
-        const tabs: Result[] = [];
+    watch(
+        [searchQuery, currentGroupMode],
+        () => {
+            if (
+                currentGroupMode.value === GroupType.Tabs &&
+                searchQuery.value.length > 0
+            ) {
+                fetchHistoryItems();
+            } else {
+                historyItems.value = [];
+            }
+        },
+        { immediate: true },
+    );
 
-        // mappings.value?.forEach((mapping) => {
-        //     for (let keyword of mapping.keywords) {
-        //         if (query.trim().startsWith(keyword)) {
-        //             tabs.push(mapping.tab);
-        //             break;
-        //         }
-        //     }
-        // });
-
-        return tabs;
+    const getGoogleSearch = (query: string): Result => {
+        return {
+            id: crypto.randomUUID(),
+            title: `${query} - Google Search`,
+            icon: "https://www.google.com/s2/favicons?domain=google.com&sz=128",
+            type: ResultType.Search,
+            url: `https://www.google.com/search?q=${query}`,
+        };
     };
 
     return {
